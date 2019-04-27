@@ -12,18 +12,18 @@ ApplicationWindow {
         Button {
             text: 'hello'
             onClicked: {
-                backend.start()
+                bridge.start()
             }
         }
         Button {
             text: '+2'
             onClicked: {
-                backend.num = backend.num + 2
+                bridge.num = bridge.num + 2
             }
         }
 
         Text {
-            text: backend.num
+            text: bridge.num
         }
     }
 }
