@@ -1,0 +1,5 @@
+import '..'
+
+Page {
+    name: 'SOM'
+}

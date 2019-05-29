@@ -12,7 +12,7 @@ if __name__ == '__main__':
     bridge = nn_sandbox.frontend.Bridge()
     engine = PyQt5.QtQml.QQmlApplicationEngine()
     engine.rootContext().setContextProperty("bridge", bridge)
-    engine.load('./nn_sandbox/frontend/tmain.qml')
+    engine.load('./nn_sandbox/frontend/main.qml')
     if not engine.rootObjects():
         sys.exit(-1)
     sys.exit(app.exec_())

@@ -3,11 +3,7 @@ import abc
 import PyQt5.QtCore
 
 from nn_sandbox.backend import Task
-from .observer import Observer, Observable
-
-
-class ABCQObjectMeta(abc.ABCMeta, type(PyQt5.QtCore.QObject)):
-    pass
+from .observer import Observer, Observable, ABCQObjectMeta
 
 
 # the member in this class should be the connection between back and front-end.
