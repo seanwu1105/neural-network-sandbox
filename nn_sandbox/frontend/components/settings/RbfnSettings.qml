@@ -1,5 +1,0 @@
-import '..'
-
-Page {
-    name: 'RBFN'
-}

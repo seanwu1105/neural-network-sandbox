@@ -3,7 +3,7 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
 import 'components'
-import 'components/settings'
+import 'components/dashboards'
 
 ApplicationWindow {
     id: window
@@ -21,11 +21,11 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 NoteBook {
-                    PerceptronSettings{}
-                    MlpSettings{}
-                    RbfnSettings{}
-                    HopfieldSettings{}
-                    SomSettings{}
+                    Perceptron{}
+                    Mlp{}
+                    Rbfn{}
+                    Hopfield{}
+                    Som{}
                 }
             }
         }
