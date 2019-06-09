@@ -16,7 +16,7 @@ class Bridge(PyQt5.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
     def __init__(self):
         super().__init__()
         self._num = 0
-        self._data = {'a': 0, 'b': 1, 'c': 2}
+        self._data = {}
 
     @PyQt5.QtCore.pyqtProperty('QVariantMap', notify=dictChanged)
     def data(self):

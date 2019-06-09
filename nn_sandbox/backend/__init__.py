@@ -1,4 +1,17 @@
 import threading
+import pathlib
+
+
+class Backend:
+    def __init__(self):
+        self.data = {}
+        self._read_data()
+
+    def _read_data(self, folder='nn_sandbox/assets/data'):
+        for filepath in pathlib.Path(folder).glob('**/*.txt'):
+            with filepath.open() as f:
+                self.data[filepath.stem] = [line.split()
+                                            for line in f.read().splitlines()]
 
 
 class Task(threading.Thread):  # this should be totally separated from frontend

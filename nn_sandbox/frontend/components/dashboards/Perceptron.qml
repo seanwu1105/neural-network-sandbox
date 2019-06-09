@@ -15,6 +15,26 @@ Page {
             ComboBox {
                 anchors.fill: parent
                 model: Object.keys(bridge.data)
+                function updateChart() {
+                    let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
+                    chart.removeAllSeries()
+                    let seriesMap = {}
+                    for (let row of bridge.data[currentText]) {
+                        if (!(row[2] in seriesMap))
+                            seriesMap[row[2]] = chart.createSeries(ChartView.SeriesTypeScatter, row[2], xAxis, yAxis)
+                        seriesMap[row[2]].append(row[0], row[1])
+                        xMax = Math.max(xMax, row[0])
+                        xMin = Math.min(xMin, row[0])
+                        yMax = Math.max(yMax, row[1])
+                        yMin = Math.min(yMin, row[1])
+                    }
+                    xAxis.max = xMax + 0.1 * (xMax - xMin)
+                    xAxis.min = xMin - 0.1 * (xMax - xMin)
+                    yAxis.max = yMax + 0.1 * (yMax - yMin)
+                    yAxis.min = yMin - 0.1 * (yMax - yMin)
+                }
+                onActivated: updateChart()
+                Component.onCompleted: updateChart()
             }
         }
         GroupBox {
@@ -101,29 +121,20 @@ Page {
         }
     }
     ChartView {
+        id: chart
         width: 600
         Layout.fillWidth: true
         Layout.fillHeight: true
         antialiasing: true
-        ScatterSeries {
-            name: 'ScatterSeries'
-            XYPoint { x: 1.5; y: 1.5 }
-            XYPoint { x: 1.5; y: 1.6 }
-            XYPoint { x: 1.57; y: 1.55 }
-            XYPoint { x: 1.8; y: 1.8 }
-            XYPoint { x: 1.9; y: 1.6 }
-            XYPoint { x: 2.1; y: 1.3 }
-            XYPoint { x: 2.5; y: 2.1 }
+        ValueAxis{
+            id: xAxis
+            min: -1.0
+            max: 1.0
         }
-        LineSeries {
-            name: 'LineSeries'
-            XYPoint { x: 1.5; y: 1.5 }
-            XYPoint { x: 1.5; y: 1.6 }
-            XYPoint { x: 1.57; y: 1.55 }
-            XYPoint { x: 1.8; y: 1.8 }
-            XYPoint { x: 1.9; y: 1.6 }
-            XYPoint { x: 2.1; y: 1.3 }
-            XYPoint { x: 2.5; y: 2.1 }
+        ValueAxis{
+            id: yAxis
+            min: -1.0
+            max: 1.0
         }
     }
 }
