@@ -1,16 +1,17 @@
 import sys
 
-import PyQt5.QtGui
-import PyQt5.QtQml
-import PyQt5.QtCore
+import PySide2.QtQml
+import PySide2.QtCore
+import PySide2.QtWidgets
 
 import nn_sandbox.frontend
 
 
 if __name__ == '__main__':
-    app = PyQt5.QtGui.QGuiApplication(sys.argv)
+    app = PySide2.QtWidgets.QApplication(sys.argv)
+    # XXX: WHY I HAVE TO USE QApplication instead of QGuiApplication? Because it seams QGuiApplication cannot load QML Chart libs!
     bridge = nn_sandbox.frontend.Bridge()
-    engine = PyQt5.QtQml.QQmlApplicationEngine()
+    engine = PySide2.QtQml.QQmlApplicationEngine()
     engine.rootContext().setContextProperty("bridge", bridge)
     engine.load('./nn_sandbox/frontend/main.qml')
     if not engine.rootObjects():

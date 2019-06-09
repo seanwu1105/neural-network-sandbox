@@ -1,6 +1,6 @@
 import abc
 
-import PyQt5.QtCore
+import PySide2.QtCore
 
 from nn_sandbox.backend import Task
 from .observer import Observer, Observable, ABCQObjectMeta
@@ -8,14 +8,31 @@ from .observer import Observer, Observable, ABCQObjectMeta
 
 # the member in this class should be the connection between back and front-end.
 # this is the observer
-class Bridge(PyQt5.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
-    changed = PyQt5.QtCore.pyqtSignal(int)
+
+# XXX: in PyQt5, after convert Python dict into QML object (via QVariantMap), there is no `keys()` or other JavaScript methods.
+# XXX: in PySide2, after QML link objects via `setContextProperty` to Python object, QML cannot get the correct object members.
+
+class Bridge(PySide2.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
+    intChanged = PySide2.QtCore.Signal(int)
+    dictChanged = PySide2.QtCore.Signal('QVariantMap')
 
     def __init__(self):
         super().__init__()
         self._num = 0
+        self._data = {'a': 0, 'b': 1, 'c': 2}
 
-    @PyQt5.QtCore.pyqtProperty(int, notify=changed)
+    @PySide2.QtCore.Property('QVariantMap', notify=dictChanged)
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, val):
+        if self._data == val:
+            return
+        self._data = val
+        self.dictChanged.emit(self._data)
+
+    @PySide2.QtCore.Property(int, notify=intChanged)
     def num(self):
         print('getter', self._num)
         return self._num
@@ -25,10 +42,10 @@ class Bridge(PyQt5.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
         if self._num == val:
             return
         self._num = val
-        self.changed.emit(self._num)
+        self.intChanged.emit(self._num)
         print('setter', self._num)
 
-    @PyQt5.QtCore.pyqtSlot()
+    @PySide2.QtCore.Slot()
     def start(self):
         self.s = ObservableTask(self)
         self.s.start()

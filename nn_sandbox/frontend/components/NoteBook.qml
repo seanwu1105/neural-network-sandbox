@@ -17,6 +17,7 @@ ColumnLayout {
                 `, bar)
             }
             window.height = body.implicitHeight
+            window.minimumHeight = body.implicitHeight
         }
     }
     StackLayout {
