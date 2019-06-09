@@ -14,14 +14,7 @@ Page {
             Layout.fillWidth: true
             ComboBox {
                 anchors.fill: parent
-                model: bridge.data
-            }
-            Component.onCompleted: () => {
-                console.log(bridge.data)
-                console.log(bridge.num)
-                for (let prop in bridge) {
-                    console.log(prop)
-                }
+                model: Object.keys(bridge.data)
             }
         }
         GroupBox {

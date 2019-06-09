@@ -1,6 +1,6 @@
 import abc
 
-import PySide2.QtCore
+import PyQt5.QtCore
 
 
 class Observer(abc.ABC):
@@ -17,5 +17,5 @@ class Observable(abc.ABC):
         pass
 
 
-class ABCQObjectMeta(abc.ABCMeta, type(PySide2.QtCore.QObject)):
+class ABCQObjectMeta(abc.ABCMeta, type(PyQt5.QtCore.QObject)):
     pass

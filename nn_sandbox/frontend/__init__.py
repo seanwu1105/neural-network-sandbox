@@ -1,6 +1,6 @@
 import abc
 
-import PySide2.QtCore
+import PyQt5.QtCore
 
 from nn_sandbox.backend import Task
 from .observer import Observer, Observable, ABCQObjectMeta
@@ -9,22 +9,20 @@ from .observer import Observer, Observable, ABCQObjectMeta
 # the member in this class should be the connection between back and front-end.
 # this is the observer
 
-# XXX: in PyQt5, after convert Python dict into QML object (via QVariantMap), there is no `keys()` or other JavaScript methods.
-# XXX: in PySide2, after QML link objects via `setContextProperty` to Python object, QML cannot get the correct object members.
-
-class Bridge(PySide2.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
-    intChanged = PySide2.QtCore.Signal(int)
-    dictChanged = PySide2.QtCore.Signal('QVariantMap')
+class Bridge(PyQt5.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
+    intChanged = PyQt5.QtCore.pyqtSignal(int)
+    dictChanged = PyQt5.QtCore.pyqtSignal('QVariantMap')
 
     def __init__(self):
         super().__init__()
         self._num = 0
         self._data = {'a': 0, 'b': 1, 'c': 2}
 
-    @PySide2.QtCore.Property('QVariantMap', notify=dictChanged)
+    @PyQt5.QtCore.pyqtProperty('QVariantMap', notify=dictChanged)
     def data(self):
         return self._data
 
+    # XXX: in PySide2, QML will not able to reach data for the bug (https://bugreports.qt.io/browse/PYSIDE-900)
     @data.setter
     def data(self, val):
         if self._data == val:
@@ -32,20 +30,7 @@ class Bridge(PySide2.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
         self._data = val
         self.dictChanged.emit(self._data)
 
-    @PySide2.QtCore.Property(int, notify=intChanged)
-    def num(self):
-        print('getter', self._num)
-        return self._num
-
-    @num.setter
-    def num(self, val):
-        if self._num == val:
-            return
-        self._num = val
-        self.intChanged.emit(self._num)
-        print('setter', self._num)
-
-    @PySide2.QtCore.Slot()
+    @PyQt5.QtCore.pyqtSlot()
     def start(self):
         self.s = ObservableTask(self)
         self.s.start()
