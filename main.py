@@ -1,3 +1,4 @@
+import os
 import sys
 
 import PyQt5.QtQml
@@ -8,6 +9,7 @@ import nn_sandbox.frontend
 import nn_sandbox.backend
 
 if __name__ == '__main__':
+    os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Material'
     app = PyQt5.QtWidgets.QApplication(sys.argv)
     # XXX: Why I Have To Use QApplication instead of QGuiApplication? Because it seams QGuiApplication cannot load QML Chart libs!
     bridge = nn_sandbox.frontend.Bridge()

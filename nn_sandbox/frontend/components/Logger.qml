@@ -1,4 +1,3 @@
-import QtQml 2.12
 import QtQuick.Controls 2.5
 
 // call textarea.append(text) to log info

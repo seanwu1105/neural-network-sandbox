@@ -1,4 +1,3 @@
-import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
@@ -20,8 +19,16 @@ Page {
                     chart.removeAllSeries()
                     let seriesMap = {}
                     for (let row of bridge.data[currentText]) {
-                        if (!(row[2] in seriesMap))
+                        if (!(row[2] in seriesMap)) {
                             seriesMap[row[2]] = chart.createSeries(ChartView.SeriesTypeScatter, row[2], xAxis, yAxis)
+                            seriesMap[row[2]].hovered.connect((point, state) => {
+                                let position = chart.mapToPosition(point)
+                                chartToolTip.x = position.x
+                                chartToolTip.y = position.y - chartToolTip.height
+                                chartToolTip.text = `(${point.x}, ${point.y})`
+                                chartToolTip.visible = state
+                            })
+                        }
                         seriesMap[row[2]].append(row[0], row[1])
                         xMax = Math.max(xMax, row[0])
                         xMin = Math.min(xMin, row[0])
@@ -47,22 +54,43 @@ Page {
                     text: 'Initial Learning Rate'
                     Layout.alignment: Qt.AlignHCenter
                 }
-                SpinBox { Layout.fillWidth: true }
+                DoubleSpinBox {
+                    editable: true
+                    realValue: 0.5
+                    Layout.fillWidth: true
+                }
                 Label {
                     text: 'Search Time Constant'
                     Layout.alignment: Qt.AlignHCenter
                 }
-                SpinBox { Layout.fillWidth: true }
+                SpinBox {
+                    editable: true
+                    value: 1000
+                    to: 999999
+                    Layout.fillWidth: true
+                }
                 Label {
                     text: 'Total Training Times'
                     Layout.alignment: Qt.AlignHCenter
                 }
-                SpinBox { Layout.fillWidth: true }
+                SpinBox {
+                    editable: true
+                    value: 2000
+                    to: 999999
+                    Layout.fillWidth: true
+                }
                 CheckBox {
+                    id: mostCorrectRateCheckBox
                     text: 'Most Correct Rate'
                     Layout.alignment: Qt.AlignHCenter
                 }
-                SpinBox {Layout.fillWidth: true }
+                DoubleSpinBox {
+                    enabled: mostCorrectRateCheckBox.checked
+                    editable: true
+                    realValue: 0.98
+                    realTo: 1
+                    Layout.fillWidth: true
+                }
             }
         }
         GroupBox {
@@ -135,6 +163,9 @@ Page {
             id: yAxis
             min: -1.0
             max: 1.0
+        }
+        ToolTip {
+            id: chartToolTip
         }
     }
 }

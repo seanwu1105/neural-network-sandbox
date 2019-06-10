@@ -21,11 +21,11 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 NoteBook {
-                    Perceptron{}
-                    Mlp{}
-                    Rbfn{}
-                    Hopfield{}
-                    Som{}
+                    Perceptron {}
+                    Mlp {}
+                    Rbfn {}
+                    Hopfield {}
+                    Som {}
                 }
             }
         }
