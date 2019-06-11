@@ -30,6 +30,17 @@ class Bridge(PyQt5.QtCore.QObject, Observer, metaclass=ABCQObjectMeta):
         self._data = val
         self.dictChanged.emit(self._data)
 
+    @PyQt5.QtCore.pyqtProperty(int, notify=intChanged)
+    def num(self):
+        return self._num
+
+    @num.setter
+    def num(self, val):
+        if self._num == val:
+            return
+        self._num = val
+        self.intChanged.emit(self._num)
+
     @PyQt5.QtCore.pyqtSlot()
     def start(self):
         self.s = ObservableTask(self)

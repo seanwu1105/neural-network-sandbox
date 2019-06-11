@@ -14,20 +14,12 @@ ApplicationWindow {
     Pane {
         id: body
         anchors.fill: parent
-        GridLayout {
-            anchors.fill: parent
-            columns: 2
-            GroupBox {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                NoteBook {
-                    Perceptron {}
-                    Mlp {}
-                    Rbfn {}
-                    Hopfield {}
-                    Som {}
-                }
-            }
+        NoteBook {
+            Perceptron {}
+            Mlp {}
+            Rbfn {}
+            Hopfield {}
+            Som {}
         }
     }
 }

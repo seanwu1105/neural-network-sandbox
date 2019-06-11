@@ -108,7 +108,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: '--'
+                    text: bridge.num
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
