@@ -13,12 +13,13 @@ Page {
             Layout.fillWidth: true
             ComboBox {
                 anchors.fill: parent
-                model: Object.keys(bridge.data)
+                model: Object.keys(perceptronBridge.dataset)
+                enabled: perceptronBridge.has_finished
                 function updateChart() {
                     let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
                     chart.removeAllSeries()
                     let seriesMap = {}
-                    for (let row of bridge.data[currentText]) {
+                    for (let row of perceptronBridge.dataset[currentText]) {
                         if (!(row[2] in seriesMap)) {
                             seriesMap[row[2]] = chart.createSeries(ChartView.SeriesTypeScatter, row[2], xAxis, yAxis)
                             seriesMap[row[2]].hovered.connect((point, state) => {
@@ -40,8 +41,14 @@ Page {
                     yAxis.max = yMax + 0.1 * (yMax - yMin)
                     yAxis.min = yMin - 0.1 * (yMax - yMin)
                 }
-                onActivated: updateChart()
-                Component.onCompleted: updateChart()
+                onActivated: () => {
+                    perceptronBridge.current_dataset_name = currentText
+                    updateChart()
+                }
+                Component.onCompleted: () => {
+                    perceptronBridge.current_dataset_name = currentText
+                    updateChart()
+                }
             }
         }
         GroupBox {
@@ -55,6 +62,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 DoubleSpinBox {
+                    enabled: perceptronBridge.has_finished
                     editable: true
                     realValue: 0.5
                     Layout.fillWidth: true
@@ -64,6 +72,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
+                    enabled: perceptronBridge.has_finished
                     editable: true
                     value: 1000
                     to: 999999
@@ -74,6 +83,8 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
+                    id: totalTrainingTimes
+                    enabled: perceptronBridge.has_finished
                     editable: true
                     value: 2000
                     to: 999999
@@ -81,11 +92,12 @@ Page {
                 }
                 CheckBox {
                     id: mostCorrectRateCheckBox
+                    enabled: perceptronBridge.has_finished
                     text: 'Most Correct Rate'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 DoubleSpinBox {
-                    enabled: mostCorrectRateCheckBox.checked
+                    enabled: mostCorrectRateCheckBox.checked && perceptronBridge.has_finished
                     editable: true
                     realValue: 0.98
                     realTo: 1
@@ -100,6 +112,8 @@ Page {
                 anchors.fill: parent
                 columns: 2
                 ExecutionControls {
+                    startButton.onClicked: perceptronBridge.start_perceptron_algorithm()
+                    stopButton.onClicked: perceptronBridge.stop_perceptron_algorithm()
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
@@ -108,7 +122,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: bridge.num
+                    text: perceptronBridge.current_times + 1
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
@@ -117,7 +131,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: '--'
+                    text: perceptronBridge.current_learning_rate
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
@@ -126,7 +140,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: '--'
+                    text: perceptronBridge.best_correct_rate
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
