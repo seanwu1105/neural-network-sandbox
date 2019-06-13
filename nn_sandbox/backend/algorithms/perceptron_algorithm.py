@@ -1,7 +1,7 @@
 import numpy as np
 
 from . import PredictionAlgorithm
-from ..neurons.perceptron import Perceptron
+from ..neurons import Perceptron
 
 
 class PerceptronAlgorithm(PredictionAlgorithm):
@@ -30,7 +30,6 @@ class PerceptronAlgorithm(PredictionAlgorithm):
                 break
 
         self._load_best_neurons()
-        self.has_finished = True
 
     def test(self):
         return self.correct_rate(self._testing_dataset)

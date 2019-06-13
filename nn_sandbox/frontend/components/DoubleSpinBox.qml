@@ -3,15 +3,12 @@ import QtQuick.Controls 2.5
 
 SpinBox {
     id: spinbox
-    value: realValue * 100
-    from: realFrom * 100
-    to: realTo * 100
+    value: 0
+    from: 0
+    to: 100
     stepSize: 1
 
     property int decimals: 2
-    property real realValue: 0
-    property real realFrom: 0
-    property real realTo: 1
     
 
     validator: DoubleValidator {

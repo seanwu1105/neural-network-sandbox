@@ -58,27 +58,6 @@ Page {
                 anchors.fill: parent
                 columns: 2
                 Label {
-                    text: 'Initial Learning Rate'
-                    Layout.alignment: Qt.AlignHCenter
-                }
-                DoubleSpinBox {
-                    enabled: perceptronBridge.has_finished
-                    editable: true
-                    realValue: 0.5
-                    Layout.fillWidth: true
-                }
-                Label {
-                    text: 'Search Time Constant'
-                    Layout.alignment: Qt.AlignHCenter
-                }
-                SpinBox {
-                    enabled: perceptronBridge.has_finished
-                    editable: true
-                    value: 1000
-                    to: 999999
-                    Layout.fillWidth: true
-                }
-                Label {
                     text: 'Total Training Times'
                     Layout.alignment: Qt.AlignHCenter
                 }
@@ -99,8 +78,30 @@ Page {
                 DoubleSpinBox {
                     enabled: mostCorrectRateCheckBox.checked && perceptronBridge.has_finished
                     editable: true
-                    realValue: 0.98
-                    realTo: 1
+                    value: 0.98 * 100
+                    onValueChanged: perceptronBridge.most_correct_rate = value / 100
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: 'Initial Learning Rate'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                DoubleSpinBox {
+                    enabled: perceptronBridge.has_finished
+                    editable: true
+                    value: 0.5 * 100
+                    onValueChanged: perceptronBridge.initial_learning_rate = value / 100
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: 'Search Time Constant'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                SpinBox {
+                    enabled: perceptronBridge.has_finished
+                    editable: true
+                    value: 1000
+                    to: 999999
                     Layout.fillWidth: true
                 }
             }
