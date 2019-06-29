@@ -24,7 +24,7 @@ Page {
                             seriesMap[row[2]] = chart.createSeries(ChartView.SeriesTypeScatter, row[2], xAxis, yAxis)
                             seriesMap[row[2]].hovered.connect((point, state) => {
                                 let position = chart.mapToPosition(point)
-                                chartToolTip.x = position.x
+                                chartToolTip.x = position.x - chartToolTip.width
                                 chartToolTip.y = position.y - chartToolTip.height
                                 chartToolTip.text = `(${point.x}, ${point.y})`
                                 chartToolTip.visible = state
@@ -62,17 +62,19 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
-                    id: totalTrainingTimes
+                    id: totalTimes
                     enabled: perceptronBridge.has_finished
                     editable: true
                     value: 2000
                     to: 999999
+                    onValueChanged: perceptronBridge.total_times = value
                     Layout.fillWidth: true
                 }
                 CheckBox {
                     id: mostCorrectRateCheckBox
                     enabled: perceptronBridge.has_finished
                     text: 'Most Correct Rate'
+                    onCheckedChanged: perceptronBridge.most_correct_rate_checkbox = checked
                     Layout.alignment: Qt.AlignHCenter
                 }
                 DoubleSpinBox {
@@ -102,6 +104,7 @@ Page {
                     editable: true
                     value: 1000
                     to: 999999
+                    onValueChanged: perceptronBridge.search_time_constant = value
                     Layout.fillWidth: true
                 }
             }

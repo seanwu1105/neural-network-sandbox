@@ -36,7 +36,7 @@ Pane {
         }
         ProgressBar {
             id: progressBar
-            value: (perceptronBridge.current_times + 1) / totalTrainingTimes.value
+            value: (perceptronBridge.current_times + 1) / totalTimes.value
             Layout.fillWidth: true
         }
     }
