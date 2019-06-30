@@ -21,7 +21,7 @@ class PerceptronAlgorithm(PredictionAlgorithm):
         for self.current_times in range(self._total_times):
             if self._should_stop:
                 break
-            self._feed_forward(self.current_data)
+            self._feed_forward(self.current_data[:-1])
             self._adjust_synaptic_weights()
             self._save_best_neurons()
             if self._most_correct_rate and self.best_correct_rate >= self._most_correct_rate:
@@ -44,7 +44,7 @@ class PerceptronAlgorithm(PredictionAlgorithm):
         correct_count = 0
         for data in dataset:
             for idx, neuron in enumerate(self._neurons):
-                self._feed_forward(data)
+                self._feed_forward(data[:-1])
                 if ((neuron.result == 1 and data[-1] == self.group_types[idx]) or
                         (neuron.result == -1 and data[-1] != self.group_types[idx])):
                     correct_count += 1

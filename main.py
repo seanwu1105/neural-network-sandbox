@@ -11,7 +11,7 @@ import nn_sandbox.backend.utils
 if __name__ == '__main__':
     os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Material'
     app = PyQt5.QtWidgets.QApplication(sys.argv)
-    # XXX: Why I Have To Use QApplication instead of QGuiApplication? Because it seams QGuiApplication cannot load QML Chart libs!
+    # XXX: Why I Have To Use QApplication instead of QGuiApplication? It seams QGuiApplication cannot load QML Chart libs!
     perceptron_bridge = PerceptronBridge()
     perceptron_bridge.dataset = nn_sandbox.backend.utils.read_data()
     engine = PyQt5.QtQml.QQmlApplicationEngine()

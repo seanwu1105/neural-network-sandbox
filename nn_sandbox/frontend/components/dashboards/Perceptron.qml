@@ -12,42 +12,17 @@ Page {
             title: 'Dataset'
             Layout.fillWidth: true
             ComboBox {
+                id: datasetCombobox
                 anchors.fill: parent
                 model: Object.keys(perceptronBridge.dataset)
                 enabled: perceptronBridge.has_finished
-                function updateChart() {
-                    let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
-                    chart.removeAllSeries()
-                    let seriesMap = {}
-                    for (let row of perceptronBridge.dataset[currentText]) {
-                        if (!(row[2] in seriesMap)) {
-                            seriesMap[row[2]] = chart.createSeries(ChartView.SeriesTypeScatter, row[2], xAxis, yAxis)
-                            seriesMap[row[2]].hovered.connect((point, state) => {
-                                let position = chart.mapToPosition(point)
-                                chartToolTip.x = position.x - chartToolTip.width
-                                chartToolTip.y = position.y - chartToolTip.height
-                                chartToolTip.text = `(${point.x}, ${point.y})`
-                                chartToolTip.visible = state
-                            })
-                        }
-                        seriesMap[row[2]].append(row[0], row[1])
-                        xMax = Math.max(xMax, row[0])
-                        xMin = Math.min(xMin, row[0])
-                        yMax = Math.max(yMax, row[1])
-                        yMin = Math.min(yMin, row[1])
-                    }
-                    xAxis.max = xMax + 0.1 * (xMax - xMin)
-                    xAxis.min = xMin - 0.1 * (xMax - xMin)
-                    yAxis.max = yMax + 0.1 * (yMax - yMin)
-                    yAxis.min = yMin - 0.1 * (yMax - yMin)
-                }
                 onActivated: () => {
                     perceptronBridge.current_dataset_name = currentText
-                    updateChart()
+                    chart.updateScatterSeries()
                 }
                 Component.onCompleted: () => {
                     perceptronBridge.current_dataset_name = currentText
-                    updateChart()
+                    chart.updateScatterSeries()
                 }
             }
         }
@@ -128,6 +103,7 @@ Page {
                 Label {
                     text: perceptronBridge.current_times + 1
                     horizontalAlignment: Text.AlignHCenter
+                    onTextChanged: chart.updateLineSeries()
                     Layout.fillWidth: true
                 }
                 Label {
@@ -184,6 +160,35 @@ Page {
         }
         ToolTip {
             id: chartToolTip
+        }
+        function updateScatterSeries() {
+            let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
+            removeAllSeries()
+            let seriesMap = {}
+            for (let row of perceptronBridge.dataset[datasetCombobox.currentText]) {
+                if (!(row[2] in seriesMap)) {
+                    seriesMap[row[2]] = createSeries(ChartView.SeriesTypeScatter, row[2], xAxis, yAxis)
+                    seriesMap[row[2]].hovered.connect((point, state) => {
+                        let position = mapToPosition(point)
+                        chartToolTip.x = position.x - chartToolTip.width
+                        chartToolTip.y = position.y - chartToolTip.height
+                        chartToolTip.text = `(${point.x}, ${point.y})`
+                        chartToolTip.visible = state
+                    })
+                }
+                seriesMap[row[2]].append(row[0], row[1])
+                xMax = Math.max(xMax, row[0])
+                xMin = Math.min(xMin, row[0])
+                yMax = Math.max(yMax, row[1])
+                yMin = Math.min(yMin, row[1])
+            }
+            xAxis.max = xMax + 0.1 * (xMax - xMin)
+            xAxis.min = xMin - 0.1 * (xMax - xMin)
+            yAxis.max = yMax + 0.1 * (yMax - yMin)
+            yAxis.min = yMin - 0.1 * (yMax - yMin)
+        }
+        function updateLineSeries() {
+            // console.log(perceptronBridge.current_synaptic_weights)
         }
     }
 }
