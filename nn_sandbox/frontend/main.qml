@@ -8,7 +8,7 @@ import 'components/dashboards'
 ApplicationWindow {
     id: window
     visible: true
-    minimumWidth: body.implicitWidth
+    // minimumWidth: body.implicitWidth  XXX: using body.implicitWidth will cause BadValue and BadWindow error in Linux (Kubuntu). Need further research.
     // minimumHeight: body.implicitHeight
     // We will set the minimum height of window after notebook has added pages.
     Pane {
