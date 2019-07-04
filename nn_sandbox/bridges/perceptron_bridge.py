@@ -21,7 +21,7 @@ class PerceptronBridge(Bridge):
     best_correct_rate = BridgeProperty(0.0)
     test_correct_rate = BridgeProperty(0.0)
     has_finished = BridgeProperty(True)
-    current_synaptic_weights = BridgeProperty([])
+    current_synaptic_weights = BridgeProperty({})
 
     def __init__(self):
         super().__init__()
@@ -60,12 +60,9 @@ class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
         if name == 'current_times':
             self.notify(name, value)
             self.notify('current_synaptic_weights',
-                        [neuron.synaptic_weight.tolist()
-                         for neuron in self._neurons
-                         if neuron.synaptic_weight is not None])
-            print([neuron.synaptic_weight.tolist()
-                   for neuron in self._neurons
-                   if neuron.synaptic_weight is not None])
+                        {str(idx): neuron.synaptic_weight.tolist()
+                         for idx, neuron in enumerate(self._neurons)
+                         if neuron.synaptic_weight is not None})
         elif name in ('best_correct_rate',):
             self.notify(name, value)
 

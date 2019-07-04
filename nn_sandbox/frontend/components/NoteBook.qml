@@ -16,8 +16,7 @@ ColumnLayout {
                 TabButton { text: '${pages[i].name}' }
                 `, bar)
             }
-            window.height = body.implicitHeight
-            window.minimumHeight = body.implicitHeight
+            window.height = window.minimumHeight = body.implicitHeight
         }
     }
     StackLayout {

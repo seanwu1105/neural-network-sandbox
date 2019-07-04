@@ -19,10 +19,12 @@ Page {
                 onActivated: () => {
                     perceptronBridge.current_dataset_name = currentText
                     chart.updateScatterSeries()
+                    chart.perceptronLines = []
                 }
                 Component.onCompleted: () => {
                     perceptronBridge.current_dataset_name = currentText
                     chart.updateScatterSeries()
+                    chart.perceptronLines = []
                 }
             }
         }
@@ -55,7 +57,7 @@ Page {
                 DoubleSpinBox {
                     enabled: mostCorrectRateCheckBox.checked && perceptronBridge.has_finished
                     editable: true
-                    value: 0.98 * 100
+                    value: 1.00 * 100
                     onValueChanged: perceptronBridge.most_correct_rate = value / 100
                     Layout.fillWidth: true
                 }
@@ -144,10 +146,13 @@ Page {
     }
     ChartView {
         id: chart
+        property var perceptronLines: []
+        
         width: 600
+        antialiasing: true
+        legend.visible: false
         Layout.fillWidth: true
         Layout.fillHeight: true
-        antialiasing: true
         ValueAxis{
             id: xAxis
             min: -1.0
@@ -164,11 +169,13 @@ Page {
         function updateScatterSeries() {
             let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
             removeAllSeries()
-            let seriesMap = {}
+            let scatterSeriesMap = {}
             for (let row of perceptronBridge.dataset[datasetCombobox.currentText]) {
-                if (!(row[2] in seriesMap)) {
-                    seriesMap[row[2]] = createSeries(ChartView.SeriesTypeScatter, row[2], xAxis, yAxis)
-                    seriesMap[row[2]].hovered.connect((point, state) => {
+                if (!(row[2] in scatterSeriesMap)) {
+                    scatterSeriesMap[row[2]] = createSeries(
+                        ChartView.SeriesTypeScatter, row[2], xAxis, yAxis
+                    )
+                    scatterSeriesMap[row[2]].hovered.connect((point, state) => {
                         let position = mapToPosition(point)
                         chartToolTip.x = position.x - chartToolTip.width
                         chartToolTip.y = position.y - chartToolTip.height
@@ -176,7 +183,7 @@ Page {
                         chartToolTip.visible = state
                     })
                 }
-                seriesMap[row[2]].append(row[0], row[1])
+                scatterSeriesMap[row[2]].append(row[0], row[1])
                 xMax = Math.max(xMax, row[0])
                 xMin = Math.min(xMin, row[0])
                 yMax = Math.max(yMax, row[1])
@@ -188,7 +195,34 @@ Page {
             yAxis.min = yMin - 0.1 * (yMax - yMin)
         }
         function updateLineSeries() {
-            // console.log(perceptronBridge.current_synaptic_weights)
+            perceptronLines.forEach(line => {removeSeries(line)})
+            perceptronLines = []
+
+            let x1, y1, x2, y2
+            for (let key in perceptronBridge.current_synaptic_weights) {
+                let synaptic_weight = perceptronBridge.current_synaptic_weights[key]
+                if (Math.abs(synaptic_weight[1]) < Math.abs(synaptic_weight[2])) {
+                    // the absolute value of slope < 1, and the coordinate-x
+                    // reaches the edge of chart view first.
+                    x1 = xAxis.min
+                    x2 = xAxis.max
+                    y1 = (synaptic_weight[0] - synaptic_weight[1] * x1) / synaptic_weight[2]
+                    y2 = (synaptic_weight[0] - synaptic_weight[1] * x2) / synaptic_weight[2]
+                } else if (Math.abs(synaptic_weight[1]) > Math.abs(synaptic_weight[2])) {
+                    // the absolute value of slope > 1, and the coordinate-y
+                    // reaches the edge of chart view first.
+                    y1 = yAxis.min
+                    y2 = yAxis.max
+                    x1 = (synaptic_weight[0] - synaptic_weight[2] * y1) / synaptic_weight[1]
+                    x2 = (synaptic_weight[0] - synaptic_weight[2] * y2) / synaptic_weight[1]
+                }
+                let line = createSeries(
+                    ChartView.SeriesTypeLine, `Perceptron ${key}`, xAxis, yAxis
+                )
+                line.append(x1, y1)
+                line.append(x2, y2)
+                perceptronLines.push(line)
+            }
         }
     }
 }

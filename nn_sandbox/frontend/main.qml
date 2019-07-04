@@ -8,7 +8,11 @@ import 'components/dashboards'
 ApplicationWindow {
     id: window
     visible: true
-    // minimumWidth: body.implicitWidth  XXX: using body.implicitWidth will cause BadValue and BadWindow error in Linux (Kubuntu). Need further research.
+    // minimumWidth: body.implicitWidth
+    // XXX: using body.implicitWidth will cause BadValue and BadWindow error in
+    // Linux (Kubuntu). Need further research. Currently, I use
+    // Component.onCompleted instead as a workaround.
+
     // minimumHeight: body.implicitHeight
     // We will set the minimum height of window after notebook has added pages.
     Pane {
@@ -22,4 +26,5 @@ ApplicationWindow {
             Som {}
         }
     }
+    Component.onCompleted: width = minimumWidth = body.implicitWidth
 }
