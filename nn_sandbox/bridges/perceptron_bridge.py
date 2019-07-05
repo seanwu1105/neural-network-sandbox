@@ -72,11 +72,13 @@ class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
 
     def run(self):
         self.notify('has_finished', False)
+        self.notify('test_correct_rate', 0)
         super().run()
         self.notify('current_synaptic_weights',
                     {str(idx): neuron.synaptic_weight.tolist()
                      for idx, neuron in enumerate(self._neurons)
                      if neuron.synaptic_weight is not None})
+        self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
 
     @property

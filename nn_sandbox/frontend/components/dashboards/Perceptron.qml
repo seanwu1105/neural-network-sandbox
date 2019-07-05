@@ -1,3 +1,4 @@
+import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
@@ -18,11 +19,11 @@ Page {
                 enabled: perceptronBridge.has_finished
                 onActivated: () => {
                     perceptronBridge.current_dataset_name = currentText
-                    chart.redrawDataset(perceptronBridge.dataset_dict[datasetCombobox.currentText])
+                    chart.updateDataset(perceptronBridge.dataset_dict[datasetCombobox.currentText])
                 }
                 Component.onCompleted: () => {
                     perceptronBridge.current_dataset_name = currentText
-                    chart.redrawDataset(perceptronBridge.dataset_dict[datasetCombobox.currentText])
+                    chart.updateDataset(perceptronBridge.dataset_dict[datasetCombobox.currentText])
                 }
             }
         }
@@ -94,8 +95,9 @@ Page {
                 ExecutionControls {
                     startButton.onClicked: () => {
                         perceptronBridge.start_perceptron_algorithm()
-                        chart.updateScatterSeries(perceptronBridge.training_dataset)
-                        chart.perceptronLines = []
+                        chart.clear()
+                        chart.updateTrainingDataset(perceptronBridge.training_dataset)
+                        chart.updateTestingDataset(perceptronBridge.testing_dataset)
                     }
                     stopButton.onClicked: perceptronBridge.stop_perceptron_algorithm()
                     Layout.columnSpan: 2
@@ -134,7 +136,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: '--'
+                    text: perceptronBridge.test_correct_rate
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
@@ -150,6 +152,7 @@ Page {
     ChartView {
         id: chart
         property var perceptronLines: []
+        property var scatterSeriesMap: ({})
         
         width: 600
         antialiasing: true
@@ -170,20 +173,32 @@ Page {
             id: chartToolTip
         }
 
-        function redrawDataset(dataset) {
-            chart.updateScatterSeries(perceptronBridge.dataset_dict[datasetCombobox.currentText])
-            chart.updateAxesRange(dataset)
-            chart.perceptronLines = []
+        function updateDataset(dataset) {
+            clear()
+            addScatterSeries(perceptronBridge.dataset_dict[datasetCombobox.currentText])
+            updateAxesRange(dataset)
         }
 
-        function updateScatterSeries(dataset) {
+        function updateTrainingDataset(dataset) {
+            addScatterSeries(dataset)
+        }
+
+        function updateTestingDataset(dataset) {
+            for (let data of dataset) {
+                if (!(`${data[2]}test` in scatterSeriesMap)) {
+                    scatterSeriesMap[`${data[2]}test`] = createHoverableScatterSeries(data[2])
+                    scatterSeriesMap[`${data[2]}test`].color = Qt.lighter(scatterSeriesMap[`${data[2]}test`].color)
+                }
+                scatterSeriesMap[`${data[2]}test`].append(data[0], data[1])
+            }
+        }
+
+        function addScatterSeries(dataset) {
             dataset.sort((a, b) => {return a[2] - b[2]})
-            removeAllSeries()
-            let scatterSeriesMap = {}
-            for (let row of dataset) {
-                if (!(row[2] in scatterSeriesMap))
-                    scatterSeriesMap[row[2]] = createHoverableScatterSeries(row[2])
-                scatterSeriesMap[row[2]].append(row[0], row[1])
+            for (let data of dataset) {
+                if (!(data[2] in scatterSeriesMap))
+                    scatterSeriesMap[data[2]] = createHoverableScatterSeries(data[2])
+                scatterSeriesMap[data[2]].append(data[0], data[1])
             }
         }
 
@@ -244,6 +259,12 @@ Page {
                 line.append(x2, y2)
                 perceptronLines.push(line)
             }
+        }
+
+        function clear() {
+            removeAllSeries()
+            perceptronLines = []
+            scatterSeriesMap = {}
         }
     }
 
