@@ -19,8 +19,8 @@ class PredictionAlgorithm(TrainingAlgorithm):
     def __init__(self, dataset):
         super().__init__()
         self._dataset = np.array(dataset)
-        self._training_dataset = None
-        self._testing_dataset = None
+        self.training_dataset = None
+        self.testing_dataset = None
 
         self._split_train_test()
 
@@ -32,5 +32,5 @@ class PredictionAlgorithm(TrainingAlgorithm):
     def _split_train_test(self, test_ratio=0.3):
         test_size = int(len(self._dataset) * test_ratio)
         np.random.shuffle(self._dataset)
-        self._training_dataset = self._dataset[test_size:, :]
-        self._testing_dataset = self._dataset[:test_size, :]
+        self.training_dataset = self._dataset[test_size:, :]
+        self.testing_dataset = self._dataset[:test_size, :]

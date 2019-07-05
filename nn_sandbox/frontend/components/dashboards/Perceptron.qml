@@ -14,17 +14,15 @@ Page {
             ComboBox {
                 id: datasetCombobox
                 anchors.fill: parent
-                model: Object.keys(perceptronBridge.dataset)
+                model: Object.keys(perceptronBridge.dataset_dict)
                 enabled: perceptronBridge.has_finished
                 onActivated: () => {
                     perceptronBridge.current_dataset_name = currentText
-                    chart.updateScatterSeries()
-                    chart.perceptronLines = []
+                    chart.redrawDataset(perceptronBridge.dataset_dict[datasetCombobox.currentText])
                 }
                 Component.onCompleted: () => {
                     perceptronBridge.current_dataset_name = currentText
-                    chart.updateScatterSeries()
-                    chart.perceptronLines = []
+                    chart.redrawDataset(perceptronBridge.dataset_dict[datasetCombobox.currentText])
                 }
             }
         }
@@ -51,6 +49,7 @@ Page {
                     id: mostCorrectRateCheckBox
                     enabled: perceptronBridge.has_finished
                     text: 'Most Correct Rate'
+                    checked: true
                     onCheckedChanged: perceptronBridge.most_correct_rate_checkbox = checked
                     Layout.alignment: Qt.AlignHCenter
                 }
@@ -93,7 +92,11 @@ Page {
                 anchors.fill: parent
                 columns: 2
                 ExecutionControls {
-                    startButton.onClicked: perceptronBridge.start_perceptron_algorithm()
+                    startButton.onClicked: () => {
+                        perceptronBridge.start_perceptron_algorithm()
+                        chart.updateScatterSeries(perceptronBridge.training_dataset)
+                        chart.perceptronLines = []
+                    }
                     stopButton.onClicked: perceptronBridge.stop_perceptron_algorithm()
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
@@ -166,24 +169,41 @@ Page {
         ToolTip {
             id: chartToolTip
         }
-        function updateScatterSeries() {
-            let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
+
+        function redrawDataset(dataset) {
+            chart.updateScatterSeries(perceptronBridge.dataset_dict[datasetCombobox.currentText])
+            chart.updateAxesRange(dataset)
+            chart.perceptronLines = []
+        }
+
+        function updateScatterSeries(dataset) {
+            dataset.sort((a, b) => {return a[2] - b[2]})
             removeAllSeries()
             let scatterSeriesMap = {}
-            for (let row of perceptronBridge.dataset[datasetCombobox.currentText]) {
-                if (!(row[2] in scatterSeriesMap)) {
-                    scatterSeriesMap[row[2]] = createSeries(
-                        ChartView.SeriesTypeScatter, row[2], xAxis, yAxis
-                    )
-                    scatterSeriesMap[row[2]].hovered.connect((point, state) => {
-                        let position = mapToPosition(point)
-                        chartToolTip.x = position.x - chartToolTip.width
-                        chartToolTip.y = position.y - chartToolTip.height
-                        chartToolTip.text = `(${point.x}, ${point.y})`
-                        chartToolTip.visible = state
-                    })
-                }
+            for (let row of dataset) {
+                if (!(row[2] in scatterSeriesMap))
+                    scatterSeriesMap[row[2]] = createHoverableScatterSeries(row[2])
                 scatterSeriesMap[row[2]].append(row[0], row[1])
+            }
+        }
+
+        function createHoverableScatterSeries(name) {
+            let newSeries = createSeries(
+                ChartView.SeriesTypeScatter, name, xAxis, yAxis
+            )
+            newSeries.hovered.connect((point, state) => {
+                let position = mapToPosition(point)
+                chartToolTip.x = position.x - chartToolTip.width
+                chartToolTip.y = position.y - chartToolTip.height
+                chartToolTip.text = `(${point.x}, ${point.y})`
+                chartToolTip.visible = state
+            })
+            return newSeries
+        }
+
+        function updateAxesRange(dataset) {
+            let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
+            for (let row of dataset) {
                 xMax = Math.max(xMax, row[0])
                 xMin = Math.min(xMin, row[0])
                 yMax = Math.max(yMax, row[1])
@@ -194,6 +214,7 @@ Page {
             yAxis.max = yMax + 0.1 * (yMax - yMin)
             yAxis.min = yMin - 0.1 * (yMax - yMin)
         }
+
         function updateLineSeries() {
             perceptronLines.forEach(line => {removeSeries(line)})
             perceptronLines = []
@@ -224,5 +245,12 @@ Page {
                 perceptronLines.push(line)
             }
         }
+    }
+
+    Connections {
+        target: perceptronBridge
+        // update the chart line series to the best synaptic weight at the end
+        // of the training.
+        onHas_finishedChanged: chart.updateLineSeries()
     }
 }

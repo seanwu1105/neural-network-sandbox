@@ -30,11 +30,11 @@ class PerceptronAlgorithm(PredictionAlgorithm):
         self._load_best_neurons()
 
     def test(self):
-        return self.correct_rate(self._testing_dataset)
+        return self.correct_rate(self.testing_dataset)
 
     @property
     def current_data(self):
-        return self._training_dataset[self.current_times % len(self._training_dataset)]
+        return self.training_dataset[self.current_times % len(self.training_dataset)]
 
     @property
     def current_learning_rate(self):
@@ -69,7 +69,7 @@ class PerceptronAlgorithm(PredictionAlgorithm):
                 neuron.synaptic_weight += self.current_learning_rate * neuron.data
 
     def _save_best_neurons(self):
-        current_correct_rate = self.correct_rate(self._training_dataset)
+        current_correct_rate = self.correct_rate(self.training_dataset)
         if current_correct_rate > self.best_correct_rate:
             self.best_correct_rate = current_correct_rate
             self._best_synaptic_weights = [neuron.synaptic_weight

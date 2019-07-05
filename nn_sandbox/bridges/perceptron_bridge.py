@@ -9,10 +9,12 @@ from .observer import Observable
 # this is the observer
 
 class PerceptronBridge(Bridge):
-    dataset = BridgeProperty({})
+    dataset_dict = BridgeProperty({})
+    training_dataset = BridgeProperty([])
+    testing_dataset = BridgeProperty([])
     current_dataset_name = BridgeProperty('')
     total_times = BridgeProperty(2000)
-    most_correct_rate_checkbox = BridgeProperty(False)
+    most_correct_rate_checkbox = BridgeProperty(True)
     most_correct_rate = BridgeProperty(0.98)
     initial_learning_rate = BridgeProperty(0.5)
     search_time_constant = BridgeProperty(1000)
@@ -31,7 +33,7 @@ class PerceptronBridge(Bridge):
     def start_perceptron_algorithm(self):
         self.perceptron_algorithm = ObservablePerceptronAlgorithm(
             self,
-            dataset=self.dataset[self.current_dataset_name],
+            dataset=self.dataset_dict[self.current_dataset_name],
             total_times=self.total_times,
             most_correct_rate=self._most_correct_rate,
             initial_learning_rate=self.initial_learning_rate,
@@ -65,10 +67,16 @@ class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
                          if neuron.synaptic_weight is not None})
         elif name in ('best_correct_rate',):
             self.notify(name, value)
+        elif name in ('training_dataset', 'testing_dataset') and value is not None:
+            self.notify(name, value.tolist())
 
     def run(self):
         self.notify('has_finished', False)
         super().run()
+        self.notify('current_synaptic_weights',
+                    {str(idx): neuron.synaptic_weight.tolist()
+                     for idx, neuron in enumerate(self._neurons)
+                     if neuron.synaptic_weight is not None})
         self.notify('has_finished', True)
 
     @property
