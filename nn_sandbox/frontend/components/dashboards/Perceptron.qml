@@ -133,7 +133,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: perceptronBridge.current_learning_rate
+                    text: perceptronBridge.current_learning_rate.toFixed(toFixedValue)
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
@@ -142,7 +142,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: perceptronBridge.best_correct_rate
+                    text: perceptronBridge.best_correct_rate.toFixed(toFixedValue)
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
@@ -151,7 +151,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: perceptronBridge.test_correct_rate
+                    text: perceptronBridge.test_correct_rate.toFixed(toFixedValue)
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
