@@ -5,9 +5,6 @@ from . import Bridge, BridgeProperty
 from .observer import Observable
 
 
-# the member in this class should be the connection between back and front-end.
-# this is the observer
-
 class PerceptronBridge(Bridge):
     dataset_dict = BridgeProperty({})
     training_dataset = BridgeProperty([])

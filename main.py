@@ -5,17 +5,25 @@ import PyQt5.QtQml
 import PyQt5.QtCore
 import PyQt5.QtWidgets
 
-from nn_sandbox.bridges import PerceptronBridge
+from nn_sandbox.bridges import PerceptronBridge, MlpBridge
 import nn_sandbox.backend.utils
 
 if __name__ == '__main__':
     os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Default'
+
+    # XXX: Why I Have To Use QApplication instead of QGuiApplication? It seams
+    # QGuiApplication cannot load QML Chart libs!
     app = PyQt5.QtWidgets.QApplication(sys.argv)
-    # XXX: Why I Have To Use QApplication instead of QGuiApplication? It seams QGuiApplication cannot load QML Chart libs!
-    perceptron_bridge = PerceptronBridge()
-    perceptron_bridge.dataset_dict = nn_sandbox.backend.utils.read_data()
     engine = PyQt5.QtQml.QQmlApplicationEngine()
-    engine.rootContext().setContextProperty('perceptronBridge', perceptron_bridge)
+
+    bridges = {
+        'perceptronBridge': PerceptronBridge(),
+        'mlpBridge': MlpBridge()
+    }
+    for name in bridges:
+        bridges[name].dataset_dict = nn_sandbox.backend.utils.read_data()
+        engine.rootContext().setContextProperty(name, bridges[name])
+
     engine.load('./nn_sandbox/frontend/main.qml')
     if not engine.rootObjects():
         sys.exit(-1)

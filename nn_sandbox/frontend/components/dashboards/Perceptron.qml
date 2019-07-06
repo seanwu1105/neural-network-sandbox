@@ -108,13 +108,16 @@ Page {
                 anchors.right: parent.right
                 columns: 2
                 ExecutionControls {
+                    startButton.enabled: perceptronBridge.has_finished
                     startButton.onClicked: () => {
                         perceptronBridge.start_perceptron_algorithm()
                         chart.clear()
                         chart.updateTrainingDataset(perceptronBridge.training_dataset)
                         chart.updateTestingDataset(perceptronBridge.testing_dataset)
                     }
+                    stopButton.enabled: !perceptronBridge.has_finished
                     stopButton.onClicked: perceptronBridge.stop_perceptron_algorithm()
+                    progressBar.value: (perceptronBridge.current_times + 1) / totalTimes.value
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
