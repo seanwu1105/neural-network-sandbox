@@ -84,13 +84,28 @@ Page {
                     onValueChanged: perceptronBridge.search_time_constant = value
                     Layout.fillWidth: true
                 }
+                Label {
+                    text: 'Test-Train Ratio'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                DoubleSpinBox {
+                    enabled: perceptronBridge.has_finished
+                    editable: true
+                    value: 0.3 * 100
+                    from: 30
+                    to: 90
+                    onValueChanged: perceptronBridge.test_ratio = value / 100
+                    Layout.fillWidth: true
+                }
             }
         }
         GroupBox {
             title: 'Information'
             Layout.fillWidth: true
+            Layout.fillHeight: true
             GridLayout {
-                anchors.fill: parent
+                anchors.left: parent.left
+                anchors.right: parent.right
                 columns: 2
                 ExecutionControls {
                     startButton.onClicked: () => {
@@ -142,12 +157,6 @@ Page {
                 }
             }
         }
-        GroupBox {
-            title: 'Logging'
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Logger {}
-        }
     }
     ChartView {
         id: chart
@@ -184,10 +193,12 @@ Page {
         }
 
         function updateTestingDataset(dataset) {
+            dataset.sort((a, b) => {return a[2] - b[2]})
             for (let data of dataset) {
                 if (!(`${data[2]}test` in scatterSeriesMap)) {
-                    scatterSeriesMap[`${data[2]}test`] = createHoverableScatterSeries(data[2])
-                    scatterSeriesMap[`${data[2]}test`].color = Qt.lighter(scatterSeriesMap[`${data[2]}test`].color)
+                    scatterSeriesMap[`${data[2]}test`] = createHoverableScatterSeries(`${data[2]}test`)
+                    if (data[2] in scatterSeriesMap)
+                        scatterSeriesMap[`${data[2]}test`].color = Qt.lighter(scatterSeriesMap[data[2]].color)
                 }
                 scatterSeriesMap[`${data[2]}test`].append(data[0], data[1])
             }
@@ -252,13 +263,28 @@ Page {
                     x1 = (synaptic_weight[0] - synaptic_weight[2] * y1) / synaptic_weight[1]
                     x2 = (synaptic_weight[0] - synaptic_weight[2] * y2) / synaptic_weight[1]
                 }
-                let line = createSeries(
-                    ChartView.SeriesTypeLine, `Perceptron ${key}`, xAxis, yAxis
+                let line = createHoverablePerceptronLine(
+                    `Perceptron ${key}`,
+                    synaptic_weight
                 )
                 line.append(x1, y1)
                 line.append(x2, y2)
                 perceptronLines.push(line)
             }
+        }
+
+        function createHoverablePerceptronLine(name, text) {
+            let newSeries = createSeries(
+                ChartView.SeriesTypeLine, name, xAxis, yAxis
+            )
+            newSeries.hovered.connect((point, state) => {
+                let position = mapToPosition(point)
+                chartToolTip.x = position.x - chartToolTip.width
+                chartToolTip.y = position.y - chartToolTip.height
+                chartToolTip.text = JSON.stringify(text)
+                chartToolTip.visible = state
+            })
+            return newSeries
         }
 
         function clear() {

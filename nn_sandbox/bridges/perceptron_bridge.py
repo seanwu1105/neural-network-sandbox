@@ -18,6 +18,7 @@ class PerceptronBridge(Bridge):
     most_correct_rate = BridgeProperty(0.98)
     initial_learning_rate = BridgeProperty(0.5)
     search_time_constant = BridgeProperty(1000)
+    test_ratio = BridgeProperty(0.3)
     current_times = BridgeProperty(0)
     current_learning_rate = BridgeProperty(0.0)
     best_correct_rate = BridgeProperty(0.0)
@@ -37,7 +38,8 @@ class PerceptronBridge(Bridge):
             total_times=self.total_times,
             most_correct_rate=self._most_correct_rate,
             initial_learning_rate=self.initial_learning_rate,
-            search_time_constant=self.search_time_constant
+            search_time_constant=self.search_time_constant,
+            test_ratio=self.test_ratio
         )
         self.perceptron_algorithm.start()
 

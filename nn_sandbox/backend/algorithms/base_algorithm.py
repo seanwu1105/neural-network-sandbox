@@ -16,13 +16,13 @@ class TrainingAlgorithm(threading.Thread):
 
 
 class PredictionAlgorithm(TrainingAlgorithm):
-    def __init__(self, dataset):
+    def __init__(self, dataset, test_ratio=0.3):
         super().__init__()
         self._dataset = np.array(dataset)
         self.training_dataset = None
         self.testing_dataset = None
 
-        self._split_train_test()
+        self._split_train_test(test_ratio=test_ratio)
 
     @property
     @functools.lru_cache()
@@ -30,7 +30,7 @@ class PredictionAlgorithm(TrainingAlgorithm):
         return np.unique(self._dataset[:, -1:])
 
     def _split_train_test(self, test_ratio=0.3):
-        test_size = int(len(self._dataset) * test_ratio)
+        test_size = max(int(len(self._dataset) * test_ratio), 1)
         np.random.shuffle(self._dataset)
         self.training_dataset = self._dataset[test_size:, :]
         self.testing_dataset = self._dataset[:test_size, :]
