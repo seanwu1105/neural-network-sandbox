@@ -1,10 +1,11 @@
+import abc
 import functools
 import threading
 
 import numpy as np
 
 
-class TrainingAlgorithm(threading.Thread):
+class TrainingAlgorithm(threading.Thread, abc.ABC):
     def __init__(self):
         super().__init__()
         self._dataset = None
@@ -14,15 +15,50 @@ class TrainingAlgorithm(threading.Thread):
     def stop(self):
         self._should_stop = True
 
+    @abc.abstractmethod
+    def test(self):
+        """ use the trained model to test the testing dataset """
 
-class PredictionAlgorithm(TrainingAlgorithm):
-    def __init__(self, dataset, test_ratio=0.3):
+
+class PredictionAlgorithm(TrainingAlgorithm, abc.ABC):
+    def __init__(self, dataset, total_iterations,
+                 most_correct_rate, test_ratio):
         super().__init__()
         self._dataset = np.array(dataset)
         self.training_dataset = None
         self.testing_dataset = None
+        self._total_iterations = total_iterations
+        self._most_correct_rate = most_correct_rate
 
         self._split_train_test(test_ratio=test_ratio)
+
+        self.current_iterations = 0
+        self.best_correct_rate = 0
+        self._best_synaptic_weights = []
+
+    def run(self):
+        for self.current_iterations in range(self._total_iterations):
+            if self._should_stop:
+                break
+            if self.current_iterations % len(self.training_dataset) == 0:
+                np.random.shuffle(self.training_dataset)
+            self.iterate()
+            self._save_best_neurons()
+            if self._most_correct_rate and self.best_correct_rate >= self._most_correct_rate:
+                break
+        self._load_best_neurons()
+
+    @abc.abstractmethod
+    def iterate(self):
+        """ do things in each iteration of the training algorithm """
+
+    @abc.abstractmethod
+    def _save_best_neurons(self):
+        """ save the best synaptic weights of all neurons for highest correct rate """
+
+    @abc.abstractmethod
+    def _load_best_neurons(self):
+        """ load the best synaptic weights into all neurons """
 
     @property
     @functools.lru_cache()

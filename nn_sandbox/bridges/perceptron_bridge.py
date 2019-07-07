@@ -10,13 +10,13 @@ class PerceptronBridge(Bridge):
     training_dataset = BridgeProperty([])
     testing_dataset = BridgeProperty([])
     current_dataset_name = BridgeProperty('')
-    total_times = BridgeProperty(2000)
+    total_iterations = BridgeProperty(2000)
     most_correct_rate_checkbox = BridgeProperty(True)
     most_correct_rate = BridgeProperty(0.98)
     initial_learning_rate = BridgeProperty(0.5)
-    search_time_constant = BridgeProperty(1000)
+    search_iteration_constant = BridgeProperty(1000)
     test_ratio = BridgeProperty(0.3)
-    current_times = BridgeProperty(0)
+    current_iterations = BridgeProperty(0)
     current_learning_rate = BridgeProperty(0.0)
     best_correct_rate = BridgeProperty(0.0)
     test_correct_rate = BridgeProperty(0.0)
@@ -32,10 +32,10 @@ class PerceptronBridge(Bridge):
         self.perceptron_algorithm = ObservablePerceptronAlgorithm(
             self,
             dataset=self.dataset_dict[self.current_dataset_name],
-            total_times=self.total_times,
+            total_iterations=self.total_iterations,
             most_correct_rate=self._most_correct_rate,
             initial_learning_rate=self.initial_learning_rate,
-            search_time_constant=self.search_time_constant,
+            search_iteration_constant=self.search_iteration_constant,
             test_ratio=self.test_ratio
         )
         self.perceptron_algorithm.start()
@@ -58,7 +58,7 @@ class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if name == 'current_times':
+        if name == 'current_iterations':
             self.notify(name, value)
             self.notify('current_synaptic_weights',
                         {str(idx): neuron.synaptic_weight.tolist()

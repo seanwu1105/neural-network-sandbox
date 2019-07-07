@@ -34,16 +34,16 @@ Page {
                 anchors.fill: parent
                 columns: 2
                 Label {
-                    text: 'Total Training Times'
+                    text: 'Total Training Iterations'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
-                    id: totalTimes
+                    id: totalIterations
                     enabled: perceptronBridge.has_finished
                     editable: true
                     value: 2000
                     to: 999999
-                    onValueChanged: perceptronBridge.total_times = value
+                    onValueChanged: perceptronBridge.total_iterations = value
                     Layout.fillWidth: true
                 }
                 CheckBox {
@@ -73,7 +73,7 @@ Page {
                     Layout.fillWidth: true
                 }
                 Label {
-                    text: 'Search Time Constant'
+                    text: 'Search Iteration Constant'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
@@ -81,7 +81,7 @@ Page {
                     editable: true
                     value: 1000
                     to: 999999
-                    onValueChanged: perceptronBridge.search_time_constant = value
+                    onValueChanged: perceptronBridge.search_iteration_constant = value
                     Layout.fillWidth: true
                 }
                 Label {
@@ -117,16 +117,16 @@ Page {
                     }
                     stopButton.enabled: !perceptronBridge.has_finished
                     stopButton.onClicked: perceptronBridge.stop_perceptron_algorithm()
-                    progressBar.value: (perceptronBridge.current_times + 1) / totalTimes.value
+                    progressBar.value: (perceptronBridge.current_iterations + 1) / totalIterations.value
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
                 Label {
-                    text: 'Current Training Times'
+                    text: 'Current Training Iterations'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
-                    text: perceptronBridge.current_times + 1
+                    text: perceptronBridge.current_iterations + 1
                     horizontalAlignment: Text.AlignHCenter
                     onTextChanged: chart.updateLineSeries()
                     Layout.fillWidth: true

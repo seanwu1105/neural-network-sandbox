@@ -23,7 +23,7 @@ class BridgeMeta(type(PyQt5.QtCore.QObject), abc.ABCMeta):
     def __new__(mcs, name, bases, attrs):
         for key in tuple(attrs.keys()):
             # NOTE: To avoid dictionary changed size during iteration causing
-            # runtime error, snapshot the keys by saving to tuple at first place.
+            # runiteration error, snapshot the keys by saving to tuple at first place.
             if isinstance(attrs[key], BridgeProperty):
                 value = attrs[key].value
                 signal = PyQt5.QtCore.pyqtSignal(type(value))

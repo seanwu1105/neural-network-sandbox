@@ -1,45 +1,33 @@
+import numpy as np
+
 from . import PredictionAlgorithm
 from ..neurons import Perceptron
 
 
 class PerceptronAlgorithm(PredictionAlgorithm):
-    def __init__(self, dataset, total_times=2000, most_correct_rate=None,
-                 initial_learning_rate=0.5, search_time_constant=1000,
+    def __init__(self, dataset, total_iterations=2000, most_correct_rate=None,
+                 initial_learning_rate=0.5, search_iteration_constant=1000,
                  test_ratio=0.3):
-        super().__init__(dataset, test_ratio=test_ratio)
-        self._total_times = total_times
-        self._most_correct_rate = most_correct_rate
+        super().__init__(dataset, total_iterations, most_correct_rate, test_ratio)
         self._initial_learning_rate = initial_learning_rate
-        self._search_time_constant = search_time_constant
+        self._search_iteration_constant = search_iteration_constant
 
         self._initialize_neurons()
 
-        self.current_times = 0
-        self.best_correct_rate = 0
-        self._best_synaptic_weights = []
-
-    def run(self):
-        for self.current_times in range(self._total_times):
-            if self._should_stop:
-                break
-            self._feed_forward(self.current_data[:-1])
-            self._adjust_synaptic_weights()
-            self._save_best_neurons()
-            if self._most_correct_rate and self.best_correct_rate >= self._most_correct_rate:
-                break
-
-        self._load_best_neurons()
+    def iterate(self):
+        self._feed_forward(self.current_data[:-1])
+        self._adjust_synaptic_weights()
 
     def test(self):
         return self.correct_rate(self.testing_dataset)
 
     @property
     def current_data(self):
-        return self.training_dataset[self.current_times % len(self.training_dataset)]
+        return self.training_dataset[self.current_iterations % len(self.training_dataset)]
 
     @property
     def current_learning_rate(self):
-        return self._initial_learning_rate / (1 + self.current_times / self._search_time_constant)
+        return self._initial_learning_rate / (1 + self.current_iterations / self._search_iteration_constant)
 
     def correct_rate(self, dataset):
         correct_count = 0
@@ -49,6 +37,8 @@ class PerceptronAlgorithm(PredictionAlgorithm):
                 if ((neuron.result == 1 and data[-1] == self.group_types[idx]) or
                         (neuron.result == -1 and data[-1] != self.group_types[idx])):
                     correct_count += 1
+        if correct_count == 0:
+            return 0
         return correct_count / (len(dataset) * len(self._neurons))
 
     def _initialize_neurons(self):
