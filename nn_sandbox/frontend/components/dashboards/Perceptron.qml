@@ -34,16 +34,16 @@ Page {
                 anchors.fill: parent
                 columns: 2
                 Label {
-                    text: 'Total Training Iterations'
+                    text: 'Total Training Epoches'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
-                    id: totalIterations
+                    id: totalEpoches
                     enabled: perceptronBridge.has_finished
                     editable: true
-                    value: 2000
+                    value: 10
                     to: 999999
-                    onValueChanged: perceptronBridge.total_iterations = value
+                    onValueChanged: perceptronBridge.total_epoches = value
                     Layout.fillWidth: true
                 }
                 CheckBox {
@@ -117,12 +117,27 @@ Page {
                     }
                     stopButton.enabled: !perceptronBridge.has_finished
                     stopButton.onClicked: perceptronBridge.stop_perceptron_algorithm()
-                    progressBar.value: (perceptronBridge.current_iterations + 1) / totalIterations.value
+                    progressBar.value: (perceptronBridge.current_iterations + 1) / (totalEpoches.value * perceptronBridge.training_dataset.length)
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
                 Label {
-                    text: 'Current Training Iterations'
+                    text: 'Current Training Epoch'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Label {
+                    text: currentEpoch()
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                    function currentEpoch() {
+                        let epoch = Math.floor((perceptronBridge.current_iterations / perceptronBridge.training_dataset.length)) + 1
+                        if (isNaN(epoch))
+                            return 1
+                        return epoch
+                    }
+                }
+                Label {
+                    text: 'Current Training Iteration'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {

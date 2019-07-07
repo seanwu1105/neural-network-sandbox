@@ -10,7 +10,7 @@ class PerceptronBridge(Bridge):
     training_dataset = BridgeProperty([])
     testing_dataset = BridgeProperty([])
     current_dataset_name = BridgeProperty('')
-    total_iterations = BridgeProperty(2000)
+    total_epoches = BridgeProperty(10)
     most_correct_rate_checkbox = BridgeProperty(True)
     most_correct_rate = BridgeProperty(0.98)
     initial_learning_rate = BridgeProperty(0.5)
@@ -32,7 +32,7 @@ class PerceptronBridge(Bridge):
         self.perceptron_algorithm = ObservablePerceptronAlgorithm(
             self,
             dataset=self.dataset_dict[self.current_dataset_name],
-            total_iterations=self.total_iterations,
+            total_epoches=self.total_epoches,
             most_correct_rate=self._most_correct_rate,
             initial_learning_rate=self.initial_learning_rate,
             search_iteration_constant=self.search_iteration_constant,

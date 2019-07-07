@@ -5,7 +5,7 @@ import threading
 import numpy as np
 
 
-class TrainingAlgorithm(threading.Thread, abc.ABC):
+class PredictiveAlgorithm(threading.Thread, abc.ABC):
     def __init__(self):
         super().__init__()
         self._dataset = None
@@ -20,14 +20,14 @@ class TrainingAlgorithm(threading.Thread, abc.ABC):
         """ use the trained model to test the testing dataset """
 
 
-class PredictionAlgorithm(TrainingAlgorithm, abc.ABC):
-    def __init__(self, dataset, total_iterations,
+class PredictionAlgorithm(PredictiveAlgorithm, abc.ABC):
+    def __init__(self, dataset, total_epoches,
                  most_correct_rate, test_ratio):
         super().__init__()
         self._dataset = np.array(dataset)
         self.training_dataset = None
         self.testing_dataset = None
-        self._total_iterations = total_iterations
+        self._total_epoches = total_epoches
         self._most_correct_rate = most_correct_rate
 
         self._split_train_test(test_ratio=test_ratio)
@@ -37,7 +37,7 @@ class PredictionAlgorithm(TrainingAlgorithm, abc.ABC):
         self._best_synaptic_weights = []
 
     def run(self):
-        for self.current_iterations in range(self._total_iterations):
+        for self.current_iterations in range(self._total_epoches * len(self.training_dataset)):
             if self._should_stop:
                 break
             if self.current_iterations % len(self.training_dataset) == 0:

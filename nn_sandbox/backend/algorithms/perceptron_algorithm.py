@@ -1,14 +1,12 @@
-import numpy as np
-
 from . import PredictionAlgorithm
 from ..neurons import Perceptron
 
 
 class PerceptronAlgorithm(PredictionAlgorithm):
-    def __init__(self, dataset, total_iterations=2000, most_correct_rate=None,
+    def __init__(self, dataset, total_epoches=10, most_correct_rate=None,
                  initial_learning_rate=0.5, search_iteration_constant=1000,
                  test_ratio=0.3):
-        super().__init__(dataset, total_iterations, most_correct_rate, test_ratio)
+        super().__init__(dataset, total_epoches, most_correct_rate, test_ratio)
         self._initial_learning_rate = initial_learning_rate
         self._search_iteration_constant = search_iteration_constant
 
