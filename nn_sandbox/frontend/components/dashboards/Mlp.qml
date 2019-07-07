@@ -85,6 +85,17 @@ Page {
                     Layout.fillWidth: true
                 }
                 Label {
+                    text: 'Momentum Weight'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                DoubleSpinBox {
+                    enabled: mlpBridge.has_finished
+                    editable: true
+                    value: 0.5 * 100
+                    from: 0
+                    to: 99
+                }
+                Label {
                     text: 'Test-Train Ratio'
                     Layout.alignment: Qt.AlignHCenter
                 }

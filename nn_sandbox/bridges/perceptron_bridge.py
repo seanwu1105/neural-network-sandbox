@@ -64,6 +64,7 @@ class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
                         {str(idx): neuron.synaptic_weight.tolist()
                          for idx, neuron in enumerate(self._neurons)
                          if neuron.synaptic_weight is not None})
+            self.notify('test_correct_rate', self.test())
         elif name in ('best_correct_rate',):
             self.notify(name, value)
         elif name in ('training_dataset', 'testing_dataset') and value is not None:

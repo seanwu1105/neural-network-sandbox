@@ -12,11 +12,11 @@ class PerceptronAlgorithm(PredictionAlgorithm):
         self._initial_learning_rate = initial_learning_rate
         self._search_time_constant = search_time_constant
 
+        self._initialize_neurons()
+
         self.current_times = 0
         self.best_correct_rate = 0
         self._best_synaptic_weights = []
-
-        self._initialize_neurons()
 
     def run(self):
         for self.current_times in range(self._total_times):

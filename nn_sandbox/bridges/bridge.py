@@ -41,5 +41,5 @@ class Bridge(PyQt5.QtCore.QObject, Observer, metaclass=BridgeMeta):
 def _convert2cpp_types(python_type):
     # XXX: A workaround for PyQt5 5.12.2 not recognizing Python dict.
     if python_type == dict:
-        return 'QVariantMap'
+        return PyQt5.QtCore.QVariant
     return python_type
