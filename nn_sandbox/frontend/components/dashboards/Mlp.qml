@@ -34,16 +34,16 @@ Page {
                 anchors.fill: parent
                 columns: 2
                 Label {
-                    text: 'Total Training Iterations'
+                    text: 'Total Training Epoches'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
-                    id: totalIterations
+                    id: totalEpoches
                     enabled: mlpBridge.has_finished
                     editable: true
-                    value: 2000
+                    value: 5
                     to: 999999
-                    onValueChanged: mlpBridge.total_iterations = value
+                    onValueChanged: mlpBridge.total_epoches = value
                     Layout.fillWidth: true
                 }
                 CheckBox {
@@ -94,6 +94,7 @@ Page {
                     value: 0.5 * 100
                     from: 0
                     to: 99
+                    Layout.fillWidth: true
                 }
                 Label {
                     text: 'Test-Train Ratio'
@@ -109,6 +110,11 @@ Page {
                     Layout.fillWidth: true
                 }
             }
+        }
+        GroupBox {
+            title: 'Network'
+            Layout.fillWidth: true
+            NetworkSetting {}
         }
         GroupBox {
             title: 'Information'
@@ -128,18 +134,33 @@ Page {
                     }
                     stopButton.enabled: !mlpBridge.has_finished
                     stopButton.onClicked: mlpBridge.stop_perceptron_algorithm()
-                    progressBar.value: (mlpBridge.current_iterations + 1) / totalIterations.value
+                    progressBar.value: (mlpBridge.current_iterations + 1) / (totalEpoches.value * mlpBridge.training_dataset.length)
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
                 Label {
-                    text: 'Current Training Iterations'
+                    text: 'Current Training Epoch'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Label {
+                    text: currentEpoch()
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                    function currentEpoch() {
+                        let epoch = Math.floor(mlpBridge.current_iterations / mlpBridge.training_dataset.length) + 1
+                        if (isNaN(epoch))
+                            return 1
+                        return epoch
+                    }
+                }
+                Label {
+                    text: 'Current Training Iteration'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
                     text: mlpBridge.current_iterations + 1
                     horizontalAlignment: Text.AlignHCenter
-                    onTextChanged: chart.updateLineSeries()
+                    // TODO: onTextChanged: chart.updateGroupDisplay()
                     Layout.fillWidth: true
                 }
                 Label {
@@ -174,7 +195,6 @@ Page {
     }
     ChartView {
         id: chart
-        property var perceptronLines: []
         property var scatterSeriesMap: ({})
         
         width: 600
@@ -255,63 +275,16 @@ Page {
             yAxis.min = yMin - 0.1 * (yMax - yMin)
         }
 
-        function updateLineSeries() {
-            perceptronLines.forEach(line => {removeSeries(line)})
-            perceptronLines = []
-
-            let x1, y1, x2, y2
-            for (let key in mlpBridge.current_synaptic_weights) {
-                let synaptic_weight = mlpBridge.current_synaptic_weights[key]
-                if (Math.abs(synaptic_weight[1]) < Math.abs(synaptic_weight[2])) {
-                    // the absolute value of slope < 1, and the coordinate-x
-                    // reaches the edge of chart view first.
-                    x1 = xAxis.min
-                    x2 = xAxis.max
-                    y1 = (synaptic_weight[0] - synaptic_weight[1] * x1) / synaptic_weight[2]
-                    y2 = (synaptic_weight[0] - synaptic_weight[1] * x2) / synaptic_weight[2]
-                } else if (Math.abs(synaptic_weight[1]) > Math.abs(synaptic_weight[2])) {
-                    // the absolute value of slope > 1, and the coordinate-y
-                    // reaches the edge of chart view first.
-                    y1 = yAxis.min
-                    y2 = yAxis.max
-                    x1 = (synaptic_weight[0] - synaptic_weight[2] * y1) / synaptic_weight[1]
-                    x2 = (synaptic_weight[0] - synaptic_weight[2] * y2) / synaptic_weight[1]
-                }
-                let line = createHoverablePerceptronLine(
-                    `Perceptron ${key}`,
-                    synaptic_weight
-                )
-                line.append(x1, y1)
-                line.append(x2, y2)
-                perceptronLines.push(line)
-            }
-        }
-
-        function createHoverablePerceptronLine(name, text) {
-            let newSeries = createSeries(
-                ChartView.SeriesTypeLine, name, xAxis, yAxis
-            )
-            newSeries.hovered.connect((point, state) => {
-                let position = mapToPosition(point)
-                chartToolTip.x = position.x - chartToolTip.width
-                chartToolTip.y = position.y - chartToolTip.height
-                chartToolTip.text = JSON.stringify(text)
-                chartToolTip.visible = state
-            })
-            return newSeries
-        }
-
         function clear() {
             removeAllSeries()
-            perceptronLines = []
             scatterSeriesMap = {}
         }
     }
 
     Connections {
         target: mlpBridge
-        // update the chart line series to the best synaptic weight at the end
+        // update the chart group display to the best synaptic weight at the end
         // of the training.
-        onHas_finishedChanged: chart.updateLineSeries()
+        // TODO: onHas_finishedChanged: chart.updateGroupDisplay()
     }
 }

@@ -9,6 +9,8 @@ ColumnLayout {
     TabBar {
         id: bar
         Layout.fillWidth: true
+
+        // TODO: use repeater instead!
         Component.onCompleted: () => {
             for (let i = 0; i < pages.length; i++) {
                 let component = Qt.createQmlObject(`

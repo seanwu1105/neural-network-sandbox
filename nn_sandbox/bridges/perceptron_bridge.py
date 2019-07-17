@@ -10,7 +10,7 @@ class PerceptronBridge(Bridge):
     training_dataset = BridgeProperty([])
     testing_dataset = BridgeProperty([])
     current_dataset_name = BridgeProperty('')
-    total_epoches = BridgeProperty(10)
+    total_epoches = BridgeProperty(5)
     most_correct_rate_checkbox = BridgeProperty(True)
     most_correct_rate = BridgeProperty(0.98)
     initial_learning_rate = BridgeProperty(0.5)

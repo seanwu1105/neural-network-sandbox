@@ -41,7 +41,7 @@ Page {
                     id: totalEpoches
                     enabled: perceptronBridge.has_finished
                     editable: true
-                    value: 10
+                    value: 5
                     to: 999999
                     onValueChanged: perceptronBridge.total_epoches = value
                     Layout.fillWidth: true
@@ -130,7 +130,7 @@ Page {
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                     function currentEpoch() {
-                        let epoch = Math.floor((perceptronBridge.current_iterations / perceptronBridge.training_dataset.length)) + 1
+                        let epoch = Math.floor(perceptronBridge.current_iterations / perceptronBridge.training_dataset.length) + 1
                         if (isNaN(epoch))
                             return 1
                         return epoch
