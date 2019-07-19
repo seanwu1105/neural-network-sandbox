@@ -28,9 +28,9 @@ GridLayout {
         columns: totalLayers / 2
         Repeater {
             model: totalLayers
-            RowLayout{
+            RowLayout {
                 enabled: slider.value >= index + 1
-                Label { text: index }
+                Label { text: index + 1 }
                 SpinBox {
                     from: 1
                     to: 100

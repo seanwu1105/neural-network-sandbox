@@ -13,8 +13,6 @@ ApplicationWindow {
     // Linux (Kubuntu). Need further research. Currently, I use
     // Component.onCompleted instead as a workaround.
 
-    // minimumHeight: body.implicitHeight
-    // We will set the minimum height of window after notebook has added pages.
     Pane {
         id: body
         anchors.fill: parent
@@ -26,5 +24,9 @@ ApplicationWindow {
             Som {}
         }
     }
-    Component.onCompleted: width = minimumWidth = body.implicitWidth
+
+    Component.onCompleted: () => {
+        width = minimumWidth = body.implicitWidth
+        height = minimumHeight = body.implicitHeight
+    }
 }

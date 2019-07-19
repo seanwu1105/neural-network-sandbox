@@ -1,4 +1,4 @@
-import QtQuick 2.12
+import QtQuick 2.13
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
 
@@ -10,15 +10,9 @@ ColumnLayout {
         id: bar
         Layout.fillWidth: true
 
-        // TODO: use repeater instead!
-        Component.onCompleted: () => {
-            for (let i = 0; i < pages.length; i++) {
-                let component = Qt.createQmlObject(`
-                import QtQuick.Controls 2.5
-                TabButton { text: '${pages[i].name}' }
-                `, bar)
-            }
-            window.height = window.minimumHeight = body.implicitHeight
+        Repeater {
+            model: pages.length
+            TabButton { text: pages[index].name }
         }
     }
     StackLayout {
