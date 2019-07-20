@@ -1,11 +1,12 @@
 import abc
+import copy
 import functools
 import threading
 
 import numpy as np
 
 
-class PredictiveAlgorithm(threading.Thread, abc.ABC):
+class TraningAlgorithm(threading.Thread, abc.ABC):
     def __init__(self):
         super().__init__()
         self._dataset = None
@@ -15,26 +16,25 @@ class PredictiveAlgorithm(threading.Thread, abc.ABC):
     def stop(self):
         self._should_stop = True
 
-    @abc.abstractmethod
-    def test(self):
-        """ use the trained model to test the testing dataset """
 
-
-class PredictionAlgorithm(PredictiveAlgorithm, abc.ABC):
-    def __init__(self, dataset, total_epoches,
-                 most_correct_rate, test_ratio):
+class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
+    def __init__(self, dataset, total_epoches, most_correct_rate,
+                 initial_learning_rate, search_iteration_constant, test_ratio):
         super().__init__()
         self._dataset = np.array(dataset)
         self.training_dataset = None
         self.testing_dataset = None
         self._total_epoches = total_epoches
         self._most_correct_rate = most_correct_rate
+        self._initial_learning_rate = initial_learning_rate
+        self._search_iteration_constant = search_iteration_constant
 
         self._split_train_test(test_ratio=test_ratio)
 
         self.current_iterations = 0
+        self.current_correct_rate = 0
         self.best_correct_rate = 0
-        self._best_synaptic_weights = []
+        self._best_neurons = []
 
     def run(self):
         for self.current_iterations in range(self._total_epoches * len(self.training_dataset)):
@@ -48,17 +48,33 @@ class PredictionAlgorithm(PredictiveAlgorithm, abc.ABC):
                 break
         self._load_best_neurons()
 
+    def test(self):
+        return self._correct_rate(self.testing_dataset)
+
     @abc.abstractmethod
     def iterate(self):
         """ do things in each iteration of the training algorithm """
 
     @abc.abstractmethod
-    def _save_best_neurons(self):
-        """ save the best synaptic weights of all neurons for highest correct rate """
+    def _correct_rate(self, dataset):
+        """ calculate the correct rate for given dataset against current neuron network. """
 
-    @abc.abstractmethod
+    def _save_best_neurons(self):
+        self.current_correct_rate = self._correct_rate(self.training_dataset)
+        if self.current_correct_rate > self.best_correct_rate:
+            self.best_correct_rate = self.current_correct_rate
+            self._best_neurons = copy.deepcopy(self._neurons)
+
     def _load_best_neurons(self):
-        """ load the best synaptic weights into all neurons """
+        self._neurons = copy.deepcopy(self._best_neurons)
+
+    @property
+    def current_data(self):
+        return self.training_dataset[self.current_iterations % len(self.training_dataset)]
+
+    @property
+    def current_learning_rate(self):
+        return self._initial_learning_rate / (1 + self.current_iterations / self._search_iteration_constant)
 
     @property
     @functools.lru_cache()

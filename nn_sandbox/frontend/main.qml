@@ -20,7 +20,6 @@ ApplicationWindow {
             Perceptron {}
             Mlp {}
             Rbfn {}
-            Hopfield {}
             Som {}
         }
     }

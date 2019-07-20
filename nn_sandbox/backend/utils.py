@@ -1,10 +1,15 @@
 import pathlib
+import math
 
 import numpy as np
 
 
 def sign(value):
     return 1 if value >= 0 else -1
+
+
+def sigmoid(value):
+    return 1 / (1 + math.exp(-value))
 
 
 def read_data(folder='nn_sandbox/assets/data'):

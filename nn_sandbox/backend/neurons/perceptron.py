@@ -1,13 +1,12 @@
 import numpy as np
 
 from . import AbstractNeuron
-from .. import utils
 
 
 class Perceptron(AbstractNeuron):
-    def __init__(self):
+    def __init__(self, activation_function):
         super().__init__()
-        self._activation_function = utils.sign
+        self._activation_function = activation_function
 
     @property
     def data(self):

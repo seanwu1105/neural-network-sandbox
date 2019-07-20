@@ -19,6 +19,7 @@ class PerceptronBridge(Bridge):
     current_iterations = BridgeProperty(0)
     current_learning_rate = BridgeProperty(0.0)
     best_correct_rate = BridgeProperty(0.0)
+    current_correct_rate = BridgeProperty(0.0)
     test_correct_rate = BridgeProperty(0.0)
     has_finished = BridgeProperty(True)
     current_synaptic_weights = BridgeProperty({})
@@ -65,7 +66,7 @@ class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
                          for idx, neuron in enumerate(self._neurons)
                          if neuron.synaptic_weight is not None})
             self.notify('test_correct_rate', self.test())
-        elif name in ('best_correct_rate',):
+        elif name in ('best_correct_rate', 'current_correct_rate'):
             self.notify(name, value)
         elif name in ('training_dataset', 'testing_dataset') and value is not None:
             self.notify(name, value.tolist())

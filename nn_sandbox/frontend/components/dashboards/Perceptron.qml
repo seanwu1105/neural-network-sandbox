@@ -44,6 +44,7 @@ Page {
                     value: 5
                     to: 999999
                     onValueChanged: perceptronBridge.total_epoches = value
+                    Component.onCompleted: perceptronBridge.total_epoches = value
                     Layout.fillWidth: true
                 }
                 CheckBox {
@@ -52,6 +53,7 @@ Page {
                     text: 'Most Correct Rate'
                     checked: true
                     onCheckedChanged: perceptronBridge.most_correct_rate_checkbox = checked
+                    Component.onCompleted: perceptronBridge.most_correct_rate_checkbox = checked
                     Layout.alignment: Qt.AlignHCenter
                 }
                 DoubleSpinBox {
@@ -59,6 +61,7 @@ Page {
                     editable: true
                     value: 1.00 * 100
                     onValueChanged: perceptronBridge.most_correct_rate = value / 100
+                    Component.onCompleted: perceptronBridge.most_correct_rate = value / 100
                     Layout.fillWidth: true
                 }
                 Label {
@@ -70,6 +73,7 @@ Page {
                     editable: true
                     value: 0.5 * 100
                     onValueChanged: perceptronBridge.initial_learning_rate = value / 100
+                    Component.onCompleted: perceptronBridge.initial_learning_rate = value / 100
                     Layout.fillWidth: true
                 }
                 Label {
@@ -82,6 +86,7 @@ Page {
                     value: 1000
                     to: 999999
                     onValueChanged: perceptronBridge.search_iteration_constant = value
+                    Component.onCompleted: perceptronBridge.search_iteration_constant = value
                     Layout.fillWidth: true
                 }
                 Label {
@@ -95,6 +100,7 @@ Page {
                     from: 30
                     to: 90
                     onValueChanged: perceptronBridge.test_ratio = value / 100
+                    Component.onCompleted: perceptronBridge.test_ratio = value / 100
                     Layout.fillWidth: true
                 }
             }
@@ -130,7 +136,7 @@ Page {
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                     function currentEpoch() {
-                        let epoch = Math.floor(perceptronBridge.current_iterations / perceptronBridge.training_dataset.length) + 1
+                        const epoch = Math.floor(perceptronBridge.current_iterations / perceptronBridge.training_dataset.length) + 1
                         if (isNaN(epoch))
                             return 1
                         return epoch
@@ -161,6 +167,15 @@ Page {
                 }
                 Label {
                     text: perceptronBridge.best_correct_rate.toFixed(toFixedValue)
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: 'Current Training Correct Rate'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Label {
+                    text: perceptronBridge.current_correct_rate.toFixed(toFixedValue)
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
@@ -232,11 +247,11 @@ Page {
         }
 
         function createHoverableScatterSeries(name) {
-            let newSeries = createSeries(
+            const newSeries = createSeries(
                 ChartView.SeriesTypeScatter, name, xAxis, yAxis
             )
             newSeries.hovered.connect((point, state) => {
-                let position = mapToPosition(point)
+                const position = mapToPosition(point)
                 chartToolTip.x = position.x - chartToolTip.width
                 chartToolTip.y = position.y - chartToolTip.height
                 chartToolTip.text = `(${point.x}, ${point.y})`
@@ -265,7 +280,7 @@ Page {
 
             let x1, y1, x2, y2
             for (let key in perceptronBridge.current_synaptic_weights) {
-                let synaptic_weight = perceptronBridge.current_synaptic_weights[key]
+                const synaptic_weight = perceptronBridge.current_synaptic_weights[key]
                 if (Math.abs(synaptic_weight[1]) < Math.abs(synaptic_weight[2])) {
                     // the absolute value of slope < 1, and the coordinate-x
                     // reaches the edge of chart view first.
@@ -281,7 +296,7 @@ Page {
                     x1 = (synaptic_weight[0] - synaptic_weight[2] * y1) / synaptic_weight[1]
                     x2 = (synaptic_weight[0] - synaptic_weight[2] * y2) / synaptic_weight[1]
                 }
-                let line = createHoverablePerceptronLine(
+                const line = createHoverablePerceptronLine(
                     `Perceptron ${key}`,
                     synaptic_weight
                 )
@@ -292,11 +307,11 @@ Page {
         }
 
         function createHoverablePerceptronLine(name, text) {
-            let newSeries = createSeries(
+            const newSeries = createSeries(
                 ChartView.SeriesTypeLine, name, xAxis, yAxis
             )
             newSeries.hovered.connect((point, state) => {
-                let position = mapToPosition(point)
+                const position = mapToPosition(point)
                 chartToolTip.x = position.x - chartToolTip.width
                 chartToolTip.y = position.y - chartToolTip.height
                 chartToolTip.text = JSON.stringify(text)

@@ -1,2 +1,3 @@
-from .base_algorithm import PredictiveAlgorithm, PredictionAlgorithm
+from .base_algorithm import TraningAlgorithm, PredictiveAlgorithm
 from .perceptron_algorithm import PerceptronAlgorithm
+from .mlp_algorithm import MlpAlgorithm

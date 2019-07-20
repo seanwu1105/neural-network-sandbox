@@ -44,6 +44,7 @@ Page {
                     value: 5
                     to: 999999
                     onValueChanged: mlpBridge.total_epoches = value
+                    Component.onCompleted: mlpBridge.total_epoches = value
                     Layout.fillWidth: true
                 }
                 CheckBox {
@@ -52,6 +53,7 @@ Page {
                     text: 'Most Correct Rate'
                     checked: true
                     onCheckedChanged: mlpBridge.most_correct_rate_checkbox = checked
+                    Component.onCompleted: mlpBridge.most_correct_rate_checkbox = checked
                     Layout.alignment: Qt.AlignHCenter
                 }
                 DoubleSpinBox {
@@ -59,6 +61,7 @@ Page {
                     editable: true
                     value: 1.00 * 100
                     onValueChanged: mlpBridge.most_correct_rate = value / 100
+                    Component.onCompleted: mlpBridge.most_correct_rate = value / 100
                     Layout.fillWidth: true
                 }
                 Label {
@@ -70,6 +73,7 @@ Page {
                     editable: true
                     value: 0.5 * 100
                     onValueChanged: mlpBridge.initial_learning_rate = value / 100
+                    Component.onCompleted: mlpBridge.initial_learning_rate = value / 100
                     Layout.fillWidth: true
                 }
                 Label {
@@ -82,6 +86,7 @@ Page {
                     value: 1000
                     to: 999999
                     onValueChanged: mlpBridge.search_iteration_constant = value
+                    Component.onCompleted: mlpBridge.search_iteration_constant = value
                     Layout.fillWidth: true
                 }
                 Label {
@@ -107,6 +112,7 @@ Page {
                     from: 30
                     to: 90
                     onValueChanged: mlpBridge.test_ratio = value / 100
+                    Component.onCompleted: mlpBridge.test_ratio = value / 100
                     Layout.fillWidth: true
                 }
             }
@@ -114,7 +120,10 @@ Page {
         GroupBox {
             title: 'Network'
             Layout.fillWidth: true
-            NetworkSetting {}
+            NetworkSetting { 
+                onShapeChanged: mlpBridge.network_shape = shape
+                Component.onCompleted: mlpBridge.network_shape = shape
+            }
         }
         GroupBox {
             title: 'Information'
@@ -127,13 +136,13 @@ Page {
                 ExecutionControls {
                     startButton.enabled: mlpBridge.has_finished
                     startButton.onClicked: () => {
-                        mlpBridge.start_perceptron_algorithm()
+                        mlpBridge.start_mlp_algorithm()
                         chart.clear()
                         chart.updateTrainingDataset(mlpBridge.training_dataset)
                         chart.updateTestingDataset(mlpBridge.testing_dataset)
                     }
                     stopButton.enabled: !mlpBridge.has_finished
-                    stopButton.onClicked: mlpBridge.stop_perceptron_algorithm()
+                    stopButton.onClicked: mlpBridge.stop_mlp_algorithm()
                     progressBar.value: (mlpBridge.current_iterations + 1) / (totalEpoches.value * mlpBridge.training_dataset.length)
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
@@ -147,7 +156,7 @@ Page {
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                     function currentEpoch() {
-                        let epoch = Math.floor(mlpBridge.current_iterations / mlpBridge.training_dataset.length) + 1
+                        const epoch = Math.floor(mlpBridge.current_iterations / mlpBridge.training_dataset.length) + 1
                         if (isNaN(epoch))
                             return 1
                         return epoch
@@ -178,6 +187,24 @@ Page {
                 }
                 Label {
                     text: mlpBridge.best_correct_rate.toFixed(toFixedValue)
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: 'Current Training Correct Rate'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Label {
+                    text: mlpBridge.current_correct_rate.toFixed(toFixedValue)
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: 'Current Training RMSE'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Label {
+                    text: 'haha'
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
@@ -248,11 +275,11 @@ Page {
         }
 
         function createHoverableScatterSeries(name) {
-            let newSeries = createSeries(
+            const newSeries = createSeries(
                 ChartView.SeriesTypeScatter, name, xAxis, yAxis
             )
             newSeries.hovered.connect((point, state) => {
-                let position = mapToPosition(point)
+                const position = mapToPosition(point)
                 chartToolTip.x = position.x - chartToolTip.width
                 chartToolTip.y = position.y - chartToolTip.height
                 chartToolTip.text = `(${point.x}, ${point.y})`
