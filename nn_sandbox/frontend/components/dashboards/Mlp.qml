@@ -41,7 +41,7 @@ Page {
                     id: totalEpoches
                     enabled: mlpBridge.has_finished
                     editable: true
-                    value: 5
+                    value: 50
                     to: 999999
                     onValueChanged: mlpBridge.total_epoches = value
                     Component.onCompleted: mlpBridge.total_epoches = value
@@ -71,7 +71,7 @@ Page {
                 DoubleSpinBox {
                     enabled: mlpBridge.has_finished
                     editable: true
-                    value: 0.5 * 100
+                    value: 0.8 * 100
                     onValueChanged: mlpBridge.initial_learning_rate = value / 100
                     Component.onCompleted: mlpBridge.initial_learning_rate = value / 100
                     Layout.fillWidth: true
@@ -83,7 +83,7 @@ Page {
                 SpinBox {
                     enabled: mlpBridge.has_finished
                     editable: true
-                    value: 1000
+                    value: 10000
                     to: 999999
                     onValueChanged: mlpBridge.search_iteration_constant = value
                     Component.onCompleted: mlpBridge.search_iteration_constant = value
@@ -120,7 +120,8 @@ Page {
         GroupBox {
             title: 'Network'
             Layout.fillWidth: true
-            NetworkSetting { 
+            NetworkSetting {
+                enabled: mlpBridge.has_finished
                 onShapeChanged: mlpBridge.network_shape = shape
                 Component.onCompleted: mlpBridge.network_shape = shape
             }

@@ -13,8 +13,8 @@ class MlpBridge(Bridge):
     total_epoches = BridgeProperty(5)
     most_correct_rate_checkbox = BridgeProperty(True)
     most_correct_rate = BridgeProperty(0.98)
-    initial_learning_rate = BridgeProperty(0.5)
-    search_iteration_constant = BridgeProperty(1000)
+    initial_learning_rate = BridgeProperty(0.8)
+    search_iteration_constant = BridgeProperty(10000)
     momentum_weight = BridgeProperty(0.5)
     test_ratio = BridgeProperty(0.3)
     network_shape = BridgeProperty([5, 5])
@@ -24,7 +24,6 @@ class MlpBridge(Bridge):
     current_correct_rate = BridgeProperty(0.0)
     test_correct_rate = BridgeProperty(0.0)
     has_finished = BridgeProperty(True)
-    current_synaptic_weights = BridgeProperty({})
 
     def __init__(self):
         super().__init__()
@@ -42,8 +41,7 @@ class MlpBridge(Bridge):
             momentum_weight=self.momentum_weight,
             test_ratio=self.test_ratio,
             network_shape=self.network_shape)
-        print(self.network_shape)
-        # self.mlp_algorithm.start()
+        self.mlp_algorithm.start()
 
     @PyQt5.QtCore.pyqtSlot()
     def stop_mlp_algorithm(self):
@@ -65,10 +63,7 @@ class ObservableMlpAlgorithm(Observable, MlpAlgorithm):
         super().__setattr__(name, value)
         if name == 'current_iterations':
             self.notify(name, value)
-            self.notify('current_synaptic_weights',
-                        {str(idx): neuron.synaptic_weight.tolist()
-                         for idx, neuron in enumerate(self._neurons)
-                         if neuron.synaptic_weight is not None})
+            self.notify('test_correct_rate', self.test())
         elif name in ('best_correct_rate', 'current_correct_rate'):
             self.notify(name, value)
         elif name in ('training_dataset', 'testing_dataset') and value is not None:
@@ -78,10 +73,6 @@ class ObservableMlpAlgorithm(Observable, MlpAlgorithm):
         self.notify('has_finished', False)
         self.notify('test_correct_rate', 0)
         super().run()
-        self.notify('current_synaptic_weights',
-                    {str(idx): neuron.synaptic_weight.tolist()
-                     for idx, neuron in enumerate(self._neurons)
-                     if neuron.synaptic_weight is not None})
         self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
 
