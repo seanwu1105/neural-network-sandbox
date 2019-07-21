@@ -2,7 +2,6 @@ import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
-import QtCharts 2.3
 
 import '..'
 
@@ -19,11 +18,11 @@ Page {
                 enabled: mlpBridge.has_finished
                 onActivated: () => {
                     mlpBridge.current_dataset_name = currentText
-                    chart.updateDataset(mlpBridge.dataset_dict[datasetCombobox.currentText])
+                    dataChart.updateDataset(mlpBridge.dataset_dict[datasetCombobox.currentText])
                 }
                 Component.onCompleted: () => {
                     mlpBridge.current_dataset_name = currentText
-                    chart.updateDataset(mlpBridge.dataset_dict[datasetCombobox.currentText])
+                    dataChart.updateDataset(mlpBridge.dataset_dict[datasetCombobox.currentText])
                 }
             }
         }
@@ -138,9 +137,10 @@ Page {
                     startButton.enabled: mlpBridge.has_finished
                     startButton.onClicked: () => {
                         mlpBridge.start_mlp_algorithm()
-                        chart.clear()
-                        chart.updateTrainingDataset(mlpBridge.training_dataset)
-                        chart.updateTestingDataset(mlpBridge.testing_dataset)
+                        dataChart.clear()
+                        dataChart.updateTrainingDataset(mlpBridge.training_dataset)
+                        dataChart.updateTestingDataset(mlpBridge.testing_dataset)
+                        rateChart.reset()
                     }
                     stopButton.enabled: !mlpBridge.has_finished
                     stopButton.onClicked: mlpBridge.stop_mlp_algorithm()
@@ -170,7 +170,20 @@ Page {
                 Label {
                     text: mlpBridge.current_iterations + 1
                     horizontalAlignment: Text.AlignHCenter
-                    // TODO: onTextChanged: chart.updateGroupDisplay()
+                    onTextChanged: () => {
+                        rateChart.bestCorrectRate.append(
+                            mlpBridge.current_iterations + 1,
+                            mlpBridge.best_correct_rate
+                        )
+                        rateChart.trainingCorrectRate.append(
+                            mlpBridge.current_iterations + 1,
+                            mlpBridge.current_correct_rate
+                        )
+                        rateChart.testingCorrectRate.append(
+                            mlpBridge.current_iterations + 1,
+                            mlpBridge.test_correct_rate
+                        )
+                    }
                     Layout.fillWidth: true
                 }
                 Label {
@@ -201,16 +214,7 @@ Page {
                     Layout.fillWidth: true
                 }
                 Label {
-                    text: 'Current Training RMSE'
-                    Layout.alignment: Qt.AlignHCenter
-                }
-                Label {
-                    text: 'haha'
-                    horizontalAlignment: Text.AlignHCenter
-                    Layout.fillWidth: true
-                }
-                Label {
-                    text: 'Testing Correct Rate'
+                    text: 'Current Testing Correct Rate'
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
@@ -221,91 +225,17 @@ Page {
             }
         }
     }
-    ChartView {
-        id: chart
-        property var scatterSeriesMap: ({})
-        
-        width: 600
-        antialiasing: true
-        legend.visible: false
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        ValueAxis{
-            id: xAxis
-            min: -1.0
-            max: 1.0
+    ColumnLayout {
+        DataChart {
+            id: dataChart
+            width: 700
+            Layout.fillWidth: true
+            Layout.fillHeight: true
         }
-        ValueAxis{
-            id: yAxis
-            min: -1.0
-            max: 1.0
-        }
-        ToolTip {
-            id: chartToolTip
-        }
-
-        function updateDataset(dataset) {
-            clear()
-            addScatterSeries(mlpBridge.dataset_dict[datasetCombobox.currentText])
-            updateAxesRange(dataset)
-        }
-
-        function updateTrainingDataset(dataset) {
-            addScatterSeries(dataset)
-        }
-
-        function updateTestingDataset(dataset) {
-            dataset.sort((a, b) => {return a[2] - b[2]})
-            for (let data of dataset) {
-                if (!(`${data[2]}test` in scatterSeriesMap)) {
-                    scatterSeriesMap[`${data[2]}test`] = createHoverableScatterSeries(`${data[2]}test`)
-                    if (data[2] in scatterSeriesMap)
-                        scatterSeriesMap[`${data[2]}test`].color = Qt.lighter(scatterSeriesMap[data[2]].color)
-                }
-                scatterSeriesMap[`${data[2]}test`].append(data[0], data[1])
-            }
-        }
-
-        function addScatterSeries(dataset) {
-            dataset.sort((a, b) => {return a[2] - b[2]})
-            for (let data of dataset) {
-                if (!(data[2] in scatterSeriesMap))
-                    scatterSeriesMap[data[2]] = createHoverableScatterSeries(data[2])
-                scatterSeriesMap[data[2]].append(data[0], data[1])
-            }
-        }
-
-        function createHoverableScatterSeries(name) {
-            const newSeries = createSeries(
-                ChartView.SeriesTypeScatter, name, xAxis, yAxis
-            )
-            newSeries.hovered.connect((point, state) => {
-                const position = mapToPosition(point)
-                chartToolTip.x = position.x - chartToolTip.width
-                chartToolTip.y = position.y - chartToolTip.height
-                chartToolTip.text = `(${point.x}, ${point.y})`
-                chartToolTip.visible = state
-            })
-            return newSeries
-        }
-
-        function updateAxesRange(dataset) {
-            let xMax = -Infinity, yMax = -Infinity, xMin = Infinity, yMin = Infinity
-            for (let row of dataset) {
-                xMax = Math.max(xMax, row[0])
-                xMin = Math.min(xMin, row[0])
-                yMax = Math.max(yMax, row[1])
-                yMin = Math.min(yMin, row[1])
-            }
-            xAxis.max = xMax + 0.1 * (xMax - xMin)
-            xAxis.min = xMin - 0.1 * (xMax - xMin)
-            yAxis.max = yMax + 0.1 * (yMax - yMin)
-            yAxis.min = yMin - 0.1 * (yMax - yMin)
-        }
-
-        function clear() {
-            removeAllSeries()
-            scatterSeriesMap = {}
+        RateChart {
+            id: rateChart
+            Layout.fillWidth: true
+            Layout.fillHeight: true
         }
     }
 
@@ -313,6 +243,6 @@ Page {
         target: mlpBridge
         // update the chart group display to the best synaptic weight at the end
         // of the training.
-        // TODO: onHas_finishedChanged: chart.updateGroupDisplay()
+        // TODO: onHas_finishedChanged: dataChart.updateGroupDisplay()
     }
 }
