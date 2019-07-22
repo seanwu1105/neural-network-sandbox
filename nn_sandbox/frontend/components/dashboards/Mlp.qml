@@ -40,7 +40,7 @@ Page {
                     id: totalEpoches
                     enabled: mlpBridge.has_finished
                     editable: true
-                    value: 50
+                    value: 10
                     to: 999999
                     onValueChanged: mlpBridge.total_epoches = value
                     Component.onCompleted: mlpBridge.total_epoches = value
@@ -237,12 +237,5 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
         }
-    }
-
-    Connections {
-        target: mlpBridge
-        // update the chart group display to the best synaptic weight at the end
-        // of the training.
-        // TODO: onHas_finishedChanged: dataChart.updateGroupDisplay()
     }
 }

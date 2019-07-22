@@ -10,7 +10,7 @@ from ..utils import sigmoid
 class MlpAlgorithm(PredictiveAlgorithm):
     """ Backpropagation prototype. """
 
-    def __init__(self, dataset, total_epoches=50, most_correct_rate=None,
+    def __init__(self, dataset, total_epoches=10, most_correct_rate=None,
                  initial_learning_rate=0.8, search_iteration_constant=10000,
                  momentum_weight=0.5, test_ratio=0.3, network_shape=None):
         super().__init__(dataset, total_epoches, most_correct_rate,
