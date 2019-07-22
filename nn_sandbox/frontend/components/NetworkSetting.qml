@@ -25,6 +25,11 @@ GridLayout {
         text: slider.value
         Layout.alignment: Qt.AlignHCenter
     }
+    Label {
+        text: 'Number of Neurons each Layer'
+        Layout.alignment: Qt.AlignHCenter
+        Layout.columnSpan: 3
+    }
     GridLayout {
         columns: totalLayers / 2
         Repeater {
