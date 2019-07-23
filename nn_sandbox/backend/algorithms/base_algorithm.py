@@ -22,8 +22,8 @@ class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
                  initial_learning_rate, search_iteration_constant, test_ratio):
         super().__init__()
         self._dataset = np.array(dataset)
-        self.training_dataset = None
-        self.testing_dataset = None
+        self.training_dataset: np.ndarray = None
+        self.testing_dataset: np.ndarray = None
         self._total_epoches = total_epoches
         self._most_correct_rate = most_correct_rate
         self._initial_learning_rate = initial_learning_rate

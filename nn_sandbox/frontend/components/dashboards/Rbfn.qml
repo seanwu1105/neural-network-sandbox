@@ -2,6 +2,7 @@ import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
+import QtCharts 2.3
 
 import '..'
 
@@ -110,6 +111,9 @@ Page {
                     editable: true
                     value: 3
                     from: 1
+                    to: Math.ceil((rbfnBridge.dataset_dict[datasetCombobox.currentText].length) * (1 - rbfnBridge.test_ratio))
+                    onValueChanged: rbfnBridge.cluster_count = value
+                    Component.onCompleted: rbfnBridge.cluster_count = value
                     Layout.fillWidth: true
                 }
                 Label {
@@ -139,14 +143,25 @@ Page {
                 ExecutionControls {
                     startButton.enabled: rbfnBridge.has_finished
                     startButton.onClicked: () => {
-                        rbfnBridge.start_mlp_algorithm()
+                        rbfnBridge.start_rbfn_algorithm()
+                        
+
                         dataChart.clear()
                         dataChart.updateTrainingDataset(rbfnBridge.training_dataset)
                         dataChart.updateTestingDataset(rbfnBridge.testing_dataset)
                         rateChart.reset()
+                        // DEBUGGING
+                        const newS = dataChart.createSeries(
+                            ChartView.SeriesTypeScatter, 'center', dataChart.xAxis, dataChart.yAxis
+                        )
+                        newS.color = 'black'
+                        for (let {mean: m, standard_deviation: sd, synaptic_weight: sw} of rbfnBridge.current_neurons) {                            
+                            newS.append(m[0], m[1])
+                        }
+                        ////////////
                     }
                     stopButton.enabled: !rbfnBridge.has_finished
-                    stopButton.onClicked: rbfnBridge.stop_mlp_algorithm()
+                    stopButton.onClicked: rbfnBridge.stop_rbfn_algorithm()
                     progressBar.value: (rbfnBridge.current_iterations + 1) / (totalEpoches.value * rbfnBridge.training_dataset.length)
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
@@ -241,4 +256,11 @@ Page {
             Layout.fillHeight: true
         }
     }
+    // TODO: update the dataChart when finished
+    // Connections {
+    //     target: perceptronBridge
+    //     // update the chart line series to the best synaptic weight at the end
+    //     // of the training.
+    //     onHas_finishedChanged: dataChart.updateLineSeries()
+    // }
 }

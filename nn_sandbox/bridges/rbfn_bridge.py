@@ -16,36 +16,37 @@ class RbfnBridge(Bridge):
     acceptable_range = BridgeProperty(0.5)
     initial_learning_rate = BridgeProperty(0.8)
     search_iteration_constant = BridgeProperty(10000)
-    momentum_weight = BridgeProperty(0.5)
+    cluster_count = BridgeProperty(3)
     test_ratio = BridgeProperty(0.3)
-    network_shape = BridgeProperty([5, 5])
     current_iterations = BridgeProperty(0)
     current_learning_rate = BridgeProperty(0.0)
     best_correct_rate = BridgeProperty(0.0)
     current_correct_rate = BridgeProperty(0.0)
     test_correct_rate = BridgeProperty(0.0)
     has_finished = BridgeProperty(True)
+    current_neurons = BridgeProperty([])
 
     def __init__(self):
         super().__init__()
         self.rbfn_algorithm = None
 
     @PyQt5.QtCore.pyqtSlot()
-    def start_mlp_algorithm(self):
+    def start_rbfn_algorithm(self):
         self.rbfn_algorithm = ObservableRbfnAlgorithm(
             self,
             dataset=self.dataset_dict[self.current_dataset_name],
             total_epoches=self.total_epoches,
             most_correct_rate=self._most_correct_rate,
+            acceptable_range=self.acceptable_range,
             initial_learning_rate=self.initial_learning_rate,
             search_iteration_constant=self.search_iteration_constant,
-            momentum_weight=self.momentum_weight,
-            test_ratio=self.test_ratio,
-            network_shape=self.network_shape)
+            cluster_count=self.cluster_count,
+            test_ratio=self.test_ratio
+        )
         self.rbfn_algorithm.start()
 
     @PyQt5.QtCore.pyqtSlot()
-    def stop_mlp_algorithm(self):
+    def stop_rbfn_algorithm(self):
         self.rbfn_algorithm.stop()
 
     @property
@@ -65,6 +66,11 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
         if name == 'current_iterations':
             self.notify(name, value)
             self.notify('test_correct_rate', self.test())
+            self.notify('current_neurons', [{
+                'mean': neuron.mean,
+                'standard_deviation': float(neuron.standard_deviation),
+                'synaptic_weight': neuron.synaptic_weight
+            } for neuron in self._neurons])
         elif name in ('best_correct_rate', 'current_correct_rate'):
             self.notify(name, value)
         elif name in ('training_dataset', 'testing_dataset') and value is not None:
@@ -74,6 +80,11 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
         self.notify('has_finished', False)
         self.notify('test_correct_rate', 0)
         super().run()
+        self.notify('current_neurons', [{
+            'mean': neuron.mean.tolist(),
+            'standard_deviation': float(neuron.standard_deviation),
+            'synaptic_weight': neuron.synaptic_weight
+        } for neuron in self._neurons])
         self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
 

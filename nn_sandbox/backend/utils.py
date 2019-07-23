@@ -12,6 +12,16 @@ def sigmoid(value):
     return 1 / (1 + math.exp(-value))
 
 
+def gaussian(value: np.ndarray, mean: np.ndarray, standard_deviation):
+    if standard_deviation == 0:
+        return 0
+    return math.exp((value - mean).dot(value - mean) / (-2 * standard_deviation**2))
+
+
+def dist(p1, p2):
+    return sum((x1 - x2)**2 for x1, x2 in zip(p1, p2))**0.5
+
+
 def read_data(folder='nn_sandbox/assets/data'):
     data = {}
     for filepath in pathlib.Path(folder).glob('**/*.txt'):

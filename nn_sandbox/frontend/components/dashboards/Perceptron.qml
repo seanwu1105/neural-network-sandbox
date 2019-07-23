@@ -203,8 +203,7 @@ Page {
             perceptronLines = []
 
             let x1, y1, x2, y2
-            for (let key in perceptronBridge.current_synaptic_weights) {
-                const synaptic_weight = perceptronBridge.current_synaptic_weights[key]
+            for (let [idx, synaptic_weight] of perceptronBridge.current_synaptic_weights.entries()) {
                 if (Math.abs(synaptic_weight[1]) < Math.abs(synaptic_weight[2])) {
                     // the absolute value of slope < 1, and the coordinate-x
                     // reaches the edge of chart view first.
@@ -221,7 +220,7 @@ Page {
                     x2 = (synaptic_weight[0] - synaptic_weight[2] * y2) / synaptic_weight[1]
                 }
                 const line = createHoverablePerceptronLine(
-                    `Perceptron ${key}`,
+                    `Perceptron ${idx}`,
                     synaptic_weight
                 )
                 line.append(x1, y1)
@@ -242,6 +241,15 @@ Page {
                 chartToolTip.visible = state
             })
             return newSeries
+        }
+
+        // XXX: sadly, QML does not have `super` access to the base class. Thus,
+        // we cannot call super method in overridden methods.
+        // Further details: https://bugreports.qt.io/browse/QTBUG-25942
+        function clear() {
+            removeAllSeries()
+            scatterSeriesMap = {}
+            perceptronLines = []
         }
     }
 
