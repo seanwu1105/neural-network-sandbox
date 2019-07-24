@@ -4,9 +4,23 @@ import QtCharts 2.3
 
 ChartView {
     id: chart
-    property var bestCorrectRate: LineSeries { axisX: xAxis; axisY: yAxis }
-    property var trainingCorrectRate: LineSeries { axisX: xAxis; axisY: yAxis }
-    property var testingCorrectRate: LineSeries { axisX: xAxis; axisY: yAxis }
+    property var bestCorrectRate: LineSeries {
+        axisX: xAxis
+        axisY: yAxis
+        useOpenGL: true
+    }
+    property var trainingCorrectRate: LineSeries {
+        axisX: xAxis
+        axisY: yAxis
+        useOpenGL: true
+    }
+    property var testingCorrectRate: LineSeries {
+        axisX: xAxis
+        axisY: yAxis
+        useOpenGL: true
+    }
+
+    antialiasing: true
     
     ValueAxis{
         id: xAxis

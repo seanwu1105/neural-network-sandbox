@@ -120,6 +120,7 @@ Page {
                         dataChart.clear()
                         dataChart.updateTrainingDataset(perceptronBridge.training_dataset)
                         dataChart.updateTestingDataset(perceptronBridge.testing_dataset)
+                        rateChart.reset()
                     }
                     stopButton.enabled: !perceptronBridge.has_finished
                     stopButton.onClicked: perceptronBridge.stop_perceptron_algorithm()
@@ -149,7 +150,21 @@ Page {
                 Label {
                     text: perceptronBridge.current_iterations + 1
                     horizontalAlignment: Text.AlignHCenter
-                    onTextChanged: dataChart.updateLineSeries()
+                    onTextChanged: () => {
+                        dataChart.updateLineSeries()
+                        rateChart.bestCorrectRate.append(
+                            perceptronBridge.current_iterations + 1,
+                            perceptronBridge.best_correct_rate
+                        )
+                        rateChart.trainingCorrectRate.append(
+                            perceptronBridge.current_iterations + 1,
+                            perceptronBridge.current_correct_rate
+                        )
+                        rateChart.testingCorrectRate.append(
+                            perceptronBridge.current_iterations + 1,
+                            perceptronBridge.test_correct_rate
+                        )
+                    }
                     Layout.fillWidth: true
                 }
                 Label {
@@ -191,65 +206,74 @@ Page {
             }
         }
     }
-    DataChart {
-        id: dataChart
-        property var perceptronLines: []
-        width: 600
-        Layout.fillWidth: true
-        Layout.fillHeight: true
+    ColumnLayout {
+        DataChart {
+            id: dataChart
+            property var perceptronLines: []
+            width: 600
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-        function updateLineSeries() {
-            perceptronLines.forEach(line => {removeSeries(line)})
-            perceptronLines = []
+            function updateLineSeries() {
+                perceptronLines.forEach(line => {removeSeries(line)})
+                perceptronLines = []
 
-            let x1, y1, x2, y2
-            for (let [idx, synaptic_weight] of perceptronBridge.current_synaptic_weights.entries()) {
-                if (Math.abs(synaptic_weight[1]) < Math.abs(synaptic_weight[2])) {
-                    // the absolute value of slope < 1, and the coordinate-x
-                    // reaches the edge of chart view first.
-                    x1 = xAxis.min
-                    x2 = xAxis.max
-                    y1 = (synaptic_weight[0] - synaptic_weight[1] * x1) / synaptic_weight[2]
-                    y2 = (synaptic_weight[0] - synaptic_weight[1] * x2) / synaptic_weight[2]
-                } else if (Math.abs(synaptic_weight[1]) > Math.abs(synaptic_weight[2])) {
-                    // the absolute value of slope > 1, and the coordinate-y
-                    // reaches the edge of chart view first.
-                    y1 = yAxis.min
-                    y2 = yAxis.max
-                    x1 = (synaptic_weight[0] - synaptic_weight[2] * y1) / synaptic_weight[1]
-                    x2 = (synaptic_weight[0] - synaptic_weight[2] * y2) / synaptic_weight[1]
+                let x1, y1, x2, y2
+                for (let [idx, synaptic_weight] of perceptronBridge.current_synaptic_weights.entries()) {
+                    if (Math.abs(synaptic_weight[1]) < Math.abs(synaptic_weight[2])) {
+                        // the absolute value of slope < 1, and the coordinate-x
+                        // reaches the edge of chart view first.
+                        x1 = xAxis.min
+                        x2 = xAxis.max
+                        y1 = (synaptic_weight[0] - synaptic_weight[1] * x1) / synaptic_weight[2]
+                        y2 = (synaptic_weight[0] - synaptic_weight[1] * x2) / synaptic_weight[2]
+                    } else if (Math.abs(synaptic_weight[1]) > Math.abs(synaptic_weight[2])) {
+                        // the absolute value of slope > 1, and the coordinate-y
+                        // reaches the edge of chart view first.
+                        y1 = yAxis.min
+                        y2 = yAxis.max
+                        x1 = (synaptic_weight[0] - synaptic_weight[2] * y1) / synaptic_weight[1]
+                        x2 = (synaptic_weight[0] - synaptic_weight[2] * y2) / synaptic_weight[1]
+                    }
+                    const line = createHoverablePerceptronLine(
+                        `Perceptron ${idx}`,
+                        synaptic_weight
+                    )
+                    line.append(x1, y1)
+                    line.append(x2, y2)
+                    perceptronLines.push(line)
                 }
-                const line = createHoverablePerceptronLine(
-                    `Perceptron ${idx}`,
-                    synaptic_weight
+            }
+
+            function createHoverablePerceptronLine(name, text) {
+                const newSeries = createSeries(
+                    ChartView.SeriesTypeLine, name, xAxis, yAxis
                 )
-                line.append(x1, y1)
-                line.append(x2, y2)
-                perceptronLines.push(line)
+                newSeries.hovered.connect((point, state) => {
+                    const position = mapToPosition(point)
+                    chartToolTip.x = position.x - chartToolTip.width
+                    chartToolTip.y = position.y - chartToolTip.height
+                    chartToolTip.text = JSON.stringify(text)
+                    chartToolTip.visible = state
+                })
+                newSeries.useOpenGL = true
+                return newSeries
+            }
+
+            // XXX: sadly, QML does not have `super` access to the base class. Thus,
+            // we cannot call super method in overridden methods.
+            // Further details: https://bugreports.qt.io/browse/QTBUG-25942
+            function clear() {
+                removeAllSeries()
+                scatterSeriesMap = {}
+                perceptronLines = []
             }
         }
 
-        function createHoverablePerceptronLine(name, text) {
-            const newSeries = createSeries(
-                ChartView.SeriesTypeLine, name, xAxis, yAxis
-            )
-            newSeries.hovered.connect((point, state) => {
-                const position = mapToPosition(point)
-                chartToolTip.x = position.x - chartToolTip.width
-                chartToolTip.y = position.y - chartToolTip.height
-                chartToolTip.text = JSON.stringify(text)
-                chartToolTip.visible = state
-            })
-            return newSeries
-        }
-
-        // XXX: sadly, QML does not have `super` access to the base class. Thus,
-        // we cannot call super method in overridden methods.
-        // Further details: https://bugreports.qt.io/browse/QTBUG-25942
-        function clear() {
-            removeAllSeries()
-            scatterSeriesMap = {}
-            perceptronLines = []
+        RateChart {
+            id: rateChart
+            Layout.fillWidth: true
+            Layout.fillHeight: true
         }
     }
 

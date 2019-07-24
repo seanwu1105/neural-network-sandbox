@@ -1,4 +1,4 @@
-import QtQml 2.12
+import QtQml 2.13
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
@@ -144,21 +144,10 @@ Page {
                     startButton.enabled: rbfnBridge.has_finished
                     startButton.onClicked: () => {
                         rbfnBridge.start_rbfn_algorithm()
-                        
-
                         dataChart.clear()
                         dataChart.updateTrainingDataset(rbfnBridge.training_dataset)
                         dataChart.updateTestingDataset(rbfnBridge.testing_dataset)
                         rateChart.reset()
-                        // DEBUGGING
-                        const newS = dataChart.createSeries(
-                            ChartView.SeriesTypeScatter, 'center', dataChart.xAxis, dataChart.yAxis
-                        )
-                        newS.color = 'black'
-                        for (let {mean: m, standard_deviation: sd, synaptic_weight: sw} of rbfnBridge.current_neurons) {                            
-                            newS.append(m[0], m[1])
-                        }
-                        ////////////
                     }
                     stopButton.enabled: !rbfnBridge.has_finished
                     stopButton.onClicked: rbfnBridge.stop_rbfn_algorithm()
@@ -246,14 +235,74 @@ Page {
     ColumnLayout {
         DataChart {
             id: dataChart
+            property var neuronScatters: []
+            
+
             width: 700
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            function updateNeurons() {
+                neuronScatters.forEach(line => {removeSeries(line)})
+                neuronScatters = []
+
+                for (let {mean: m, standardDeviation: sd, synapticWeight: sw} of rbfnBridge.current_neurons) {
+                    neuronScatters.push(createHoverableNeuronSeries(m, sd, sw))
+                }
+            }
+
+            function createHoverableNeuronSeries(mean, standardDeviation, synapticWeight) {
+                const newSeries = dataChart.createSeries(
+                    ChartView.SeriesTypeScatter, 'center',
+                    dataChart.xAxis, dataChart.yAxis
+                )
+                newSeries.color = 'black'
+                newSeries.hovered.connect((point, state) => {
+                    const position = mapToPosition(point)
+                    chartToolTip.x = position.x - chartToolTip.width
+                    chartToolTip.y = position.y - chartToolTip.height
+                    chartToolTip.text = `Mean: (${point.x}, ${point.y})`
+                    chartToolTip.visible = state
+                })
+                newSeries.append(mean[0], mean[1])
+                newSeries.useOpenGL = true
+                return newSeries
+            }
+
+            // XXX: sadly, QML does not have `super` access to the base class. Thus,
+            // we cannot call super method in overridden methods.
+            // Further details: https://bugreports.qt.io/browse/QTBUG-25942
+            function clear() {
+                removeAllSeries()
+                scatterSeriesMap = {}
+                neuronScatters = []
+            }
         }
-        RateChart {
-            id: rateChart
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+        RowLayout {
+            ChartView {
+                id: neuronChart
+                antialiasing: true
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                BarSeries {
+                    axisX: BarCategoryAxis { titleText: 'Neurons' }
+                    useOpenGL: true
+                    BarSet {
+                        label: 'Standard Deviation'
+                        values: [2, 2, 3, 4, 5, 6]
+                    }
+                    BarSet {
+                        label: 'Synaptic Weight'
+                        values: [5, 1, 2, 4, 1, 7]
+                    }
+                }
+            }
+            RateChart {
+                id: rateChart
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
     }
     // TODO: update the dataChart when finished

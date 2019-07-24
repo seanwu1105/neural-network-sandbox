@@ -5,6 +5,8 @@ ChartView {
     property var scatterSeriesMap: ({})
     property alias xAxis: xAxis
     property alias yAxis: yAxis
+    property alias chartToolTip: chartToolTip
+    
 
     antialiasing: true
     legend.visible: false
