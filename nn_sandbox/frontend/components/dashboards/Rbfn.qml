@@ -107,6 +107,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 SpinBox {
+                    id: clusterCount
                     enabled: rbfnBridge.has_finished
                     editable: true
                     value: 3
@@ -179,6 +180,7 @@ Page {
                     horizontalAlignment: Text.AlignHCenter
                     onTextChanged: () => {
                         dataChart.updateNeurons()
+                        neuronChart.updateAxisY()
                         rateChart.bestCorrectRate.append(
                             rbfnBridge.current_iterations + 1,
                             rbfnBridge.best_correct_rate
@@ -285,18 +287,43 @@ Page {
                 antialiasing: true
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-
+                ToolTip {
+                    id: neuronChartToolTip
+                    x: (parent.width - width) / 2
+                    y: (parent.height - height) / 2
+                }
                 BarSeries {
-                    axisX: BarCategoryAxis { titleText: 'Neurons' }
+                    id: neuronChartSeries
                     useOpenGL: true
+                    axisX: BarCategoryAxis {
+                        titleText: 'Neurons'
+                        categories: Array.from(Array(clusterCount.value).keys())
+                    }
+                    axisY: ValueAxis {
+                        id: neuronChartAxisY
+                        max: 0
+                        min: 0
+                    }
                     BarSet {
+                        id: standardDeviationBarSet
                         label: 'Standard Deviation'
-                        values: [2, 2, 3, 4, 5, 6]
+                        values: rbfnBridge.current_neurons.map(neuron => neuron.standard_deviation)
                     }
                     BarSet {
+                        id: synapticWeightBarSet
                         label: 'Synaptic Weight'
-                        values: [5, 1, 2, 4, 1, 7]
+                        values: rbfnBridge.current_neurons.map(neuron => neuron.synaptic_weight)
                     }
+                    onHovered: (status, index, barset) => {
+                        neuronChartToolTip.text = barset.at(index)
+                        neuronChartToolTip.visible = status
+                    }
+                }
+                function updateAxisY() {
+                    const max = Math.max(...standardDeviationBarSet.values)
+                    const min = Math.min(...standardDeviationBarSet.values)
+                    neuronChartAxisY.max = isFinite(max) ? max : 0
+                    neuronChartAxisY.min = isFinite(min) ? min : 0
                 }
             }
             RateChart {

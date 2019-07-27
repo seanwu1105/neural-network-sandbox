@@ -67,14 +67,14 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
         super().__setattr__(name, value)
         if name == 'current_iterations' and self.has_initialized:
             # XXX: to keep the GUI from blocking, uncomment the following line
-            # if value % 50 == 0:
-            self.notify(name, value)
+            if value % 50 == 0:
+                self.notify(name, value)
+                self.notify('current_neurons', [{
+                    'mean': neuron.mean.tolist(),
+                    'standard_deviation': float(neuron.standard_deviation),
+                    'synaptic_weight': float(neuron.synaptic_weight)
+                } for neuron in self._neurons if not neuron.is_threshold])
             self.notify('test_correct_rate', self.test())
-            self.notify('current_neurons', [{
-                'mean': neuron.mean.tolist(),
-                'standard_deviation': float(neuron.standard_deviation),
-                'synaptic_weight': neuron.synaptic_weight
-            } for neuron in self._neurons if not neuron.is_threshold])
         if name in ('best_correct_rate', 'current_correct_rate'):
             self.notify(name, value)
         if name in ('training_dataset', 'testing_dataset') and value is not None:
@@ -87,13 +87,15 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
         self.notify('current_neurons', [{
             'mean': neuron.mean.tolist(),
             'standard_deviation': float(neuron.standard_deviation),
-            'synaptic_weight': neuron.synaptic_weight
+            'synaptic_weight': float(neuron.synaptic_weight)
         } for neuron in self._neurons if not neuron.is_threshold])
         self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
 
-    # @property
-    # def current_learning_rate(self):
-    #     ret = super().current_learning_rate
-    #     self.notify('current_learning_rate', ret)
-    #     return ret
+    @property
+    def current_learning_rate(self):
+        ret = super().current_learning_rate
+        # XXX: to keep the GUI from blocking, uncomment the following line
+        if self.current_iterations % 10 == 0:
+            self.notify('current_learning_rate', ret)
+        return ret
