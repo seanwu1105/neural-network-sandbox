@@ -14,7 +14,7 @@ class RbfnAlgorithm(PredictiveAlgorithm):
         self.acceptable_range = acceptable_range
         self.cluster_count = cluster_count
 
-    def iterate(self):
+    def _iterate(self):
         result = self._feed_forward(self.current_data[:-1])
         self._adjust_neurons(result)
 

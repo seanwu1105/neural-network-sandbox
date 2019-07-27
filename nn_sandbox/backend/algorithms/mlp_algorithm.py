@@ -24,7 +24,7 @@ class MlpAlgorithm(PredictiveAlgorithm):
         # for momentum
         self._synaptic_weight_diff = collections.defaultdict(lambda: 0)
 
-    def iterate(self):
+    def _iterate(self):
         result = self._feed_forward(self.current_data[:-1])
         deltas = self._pass_backward(self._normalize(self.current_data[-1]),
                                      result)

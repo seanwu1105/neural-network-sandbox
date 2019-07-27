@@ -14,7 +14,6 @@ class TraningAlgorithm(threading.Thread, abc.ABC):
         super().__init__()
         self._dataset = np.array(dataset)
         self._total_epoches = total_epoches
-        self.current_iterations = 0
         self._neurons: List[Perceptron] = []
         self._should_stop = False
 
@@ -34,6 +33,7 @@ class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
 
         self._split_train_test(test_ratio=test_ratio)
 
+        self.current_iterations = 0
         self.current_correct_rate = 0
         self.best_correct_rate = 0
         self._best_neurons = []
@@ -45,7 +45,7 @@ class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
                 break
             if self.current_iterations % len(self.training_dataset) == 0:
                 np.random.shuffle(self.training_dataset)
-            self.iterate()
+            self._iterate()
             self._save_best_neurons()
             if self._most_correct_rate and self.best_correct_rate >= self._most_correct_rate:
                 break
@@ -59,7 +59,7 @@ class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
         """ initialize neurons and save to self._neurons """
 
     @abc.abstractmethod
-    def iterate(self):
+    def _iterate(self):
         """ do things in each iteration of the training algorithm """
 
     @abc.abstractmethod

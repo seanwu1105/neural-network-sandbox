@@ -1,5 +1,7 @@
 import math
 
+import numpy as np
+
 from . import TraningAlgorithm
 
 
@@ -12,6 +14,23 @@ class SomAlgorithm(TraningAlgorithm):
 
         # the default topology shape is (10 * 10)
         self.topology_shape = topology_shape if topology_shape else [10, 10]
+
+        self.current_iterations = 0
+
+    def run(self):
+        self._initialize_neurons()
+        for self.current_iterations in range(self._total_epoches * len(self._dataset)):
+            if self._should_stop:
+                break
+            if self.current_iterations % len(self._dataset) == 0:
+                np.random.shuffle(self._dataset)
+            self._iterate()
+
+    def _initialize_neurons(self):
+        pass
+
+    def _iterate(self):
+        pass
 
     @property
     def current_learning_rate(self):
