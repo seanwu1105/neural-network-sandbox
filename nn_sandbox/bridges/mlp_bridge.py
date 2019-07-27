@@ -40,7 +40,8 @@ class MlpBridge(Bridge):
             search_iteration_constant=self.search_iteration_constant,
             momentum_weight=self.momentum_weight,
             test_ratio=self.test_ratio,
-            network_shape=self.network_shape)
+            network_shape=self.network_shape
+        )
         self.mlp_algorithm.start()
 
     @PyQt5.QtCore.pyqtSlot()

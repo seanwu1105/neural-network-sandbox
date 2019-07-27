@@ -10,9 +10,11 @@ from ..neurons import Perceptron
 
 
 class TraningAlgorithm(threading.Thread, abc.ABC):
-    def __init__(self):
+    def __init__(self, dataset, total_epoches):
         super().__init__()
-        self._dataset = None
+        self._dataset = np.array(dataset)
+        self._total_epoches = total_epoches
+        self.current_iterations = 0
         self._neurons: List[Perceptron] = []
         self._should_stop = False
 
@@ -23,18 +25,15 @@ class TraningAlgorithm(threading.Thread, abc.ABC):
 class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
     def __init__(self, dataset, total_epoches, most_correct_rate,
                  initial_learning_rate, search_iteration_constant, test_ratio):
-        super().__init__()
-        self._dataset = np.array(dataset)
+        super().__init__(dataset, total_epoches)
         self.training_dataset: np.ndarray = None
         self.testing_dataset: np.ndarray = None
-        self._total_epoches = total_epoches
         self._most_correct_rate = most_correct_rate
         self._initial_learning_rate = initial_learning_rate
         self._search_iteration_constant = search_iteration_constant
 
         self._split_train_test(test_ratio=test_ratio)
 
-        self.current_iterations = 0
         self.current_correct_rate = 0
         self.best_correct_rate = 0
         self._best_neurons = []
@@ -82,7 +81,8 @@ class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
 
     @property
     def current_learning_rate(self):
-        return self._initial_learning_rate / (1 + self.current_iterations / self._search_iteration_constant)
+        return self._initial_learning_rate / (1 + self.current_iterations
+                                              / self._search_iteration_constant)
 
     @property
     @functools.lru_cache()

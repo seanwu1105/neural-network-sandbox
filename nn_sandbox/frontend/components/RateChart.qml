@@ -24,11 +24,13 @@ ChartView {
     
     ValueAxis{
         id: xAxis
+        titleText: 'Iterations'
         min: 1.0
         max: 2.0
     }
     ValueAxis{
         id: yAxis
+        titleText: 'Correct Rate'
         min: 0.0
         max: 1.0
     }
@@ -41,19 +43,19 @@ ChartView {
     function reset() {
         removeAllSeries()
         trainingCorrectRate = createSeries(
-            ChartView.SeriesTypeLine, 'Training Correct Rate', xAxis, yAxis
+            ChartView.SeriesTypeLine, 'Training', xAxis, yAxis
         )
         trainingCorrectRate.pointAdded.connect((index) => {
             updateAxes(trainingCorrectRate.at(index))
         })
         testingCorrectRate = createSeries(
-            ChartView.SeriesTypeLine, 'Testing Correct Rate', xAxis, yAxis
+            ChartView.SeriesTypeLine, 'Testing', xAxis, yAxis
         )
         testingCorrectRate.pointAdded.connect((index) => {
             updateAxes(testingCorrectRate.at(index))
         })
         bestCorrectRate = createSeries(
-            ChartView.SeriesTypeLine, 'Best Training Correct Rate', xAxis, yAxis
+            ChartView.SeriesTypeLine, 'Best Training', xAxis, yAxis
         )
         bestCorrectRate.pointAdded.connect((index) => {
             updateAxes(bestCorrectRate.at(index))

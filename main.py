@@ -5,7 +5,7 @@ import PyQt5.QtQml
 import PyQt5.QtCore
 import PyQt5.QtWidgets
 
-from nn_sandbox.bridges import PerceptronBridge, MlpBridge, RbfnBridge
+from nn_sandbox.bridges import PerceptronBridge, MlpBridge, RbfnBridge, SomBridge
 import nn_sandbox.backend.utils
 
 if __name__ == '__main__':
@@ -19,7 +19,8 @@ if __name__ == '__main__':
     bridges = {
         'perceptronBridge': PerceptronBridge(),
         'mlpBridge': MlpBridge(),
-        'rbfnBridge': RbfnBridge()
+        'rbfnBridge': RbfnBridge(),
+        'somBridge': SomBridge()
     }
     for name in bridges:
         bridges[name].dataset_dict = nn_sandbox.backend.utils.read_data()

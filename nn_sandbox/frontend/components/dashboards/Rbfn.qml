@@ -320,8 +320,8 @@ Page {
                     }
                 }
                 function updateAxisY() {
-                    const max = Math.max(...standardDeviationBarSet.values)
-                    const min = Math.min(...standardDeviationBarSet.values)
+                    const max = Math.max(0, ...standardDeviationBarSet.values, ...synapticWeightBarSet.values)
+                    const min = Math.min(0, ...standardDeviationBarSet.values, ...synapticWeightBarSet.values)
                     neuronChartAxisY.max = isFinite(max) ? max : 0
                     neuronChartAxisY.min = isFinite(min) ? min : 0
                 }
