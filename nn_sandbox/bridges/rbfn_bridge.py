@@ -66,8 +66,9 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if name == 'current_iterations' and self.has_initialized:
-            if value % 50 == 0:
-                self.notify(name, value)
+            # XXX: to keep the GUI from blocking, uncomment the following line
+            # if value % 50 == 0:
+            self.notify(name, value)
             self.notify('test_correct_rate', self.test())
             self.notify('current_neurons', [{
                 'mean': neuron.mean.tolist(),
