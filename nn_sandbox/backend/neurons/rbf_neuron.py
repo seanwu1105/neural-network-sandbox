@@ -6,7 +6,7 @@ from ..utils import gaussian
 
 
 class RbfNeuron(Perceptron):
-    def __init__(self, mean, standard_deviation,
+    def __init__(self, mean=None, standard_deviation=None,
                  activation_function=gaussian, is_threshold=False):
         super().__init__(activation_function)
         self.mean = mean
@@ -26,6 +26,6 @@ class RbfNeuron(Perceptron):
     def result(self):
         if self.is_threshold:
             return self.synaptic_weight
-        return self.synaptic_weight * self._activation_function(
+        return self.synaptic_weight * self.activation_function(
             self.data, self.mean, self.standard_deviation
         )

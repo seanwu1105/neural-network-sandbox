@@ -178,6 +178,7 @@ Page {
                     text: rbfnBridge.current_iterations + 1
                     horizontalAlignment: Text.AlignHCenter
                     onTextChanged: () => {
+                        dataChart.updateNeurons()
                         rateChart.bestCorrectRate.append(
                             rbfnBridge.current_iterations + 1,
                             rbfnBridge.best_correct_rate
@@ -243,18 +244,18 @@ Page {
             Layout.fillHeight: true
 
             function updateNeurons() {
-                neuronScatters.forEach(line => {removeSeries(line)})
+                neuronScatters.forEach(neuron => {removeSeries(neuron)})
                 neuronScatters = []
 
                 for (let {mean: m, standardDeviation: sd, synapticWeight: sw} of rbfnBridge.current_neurons) {
-                    neuronScatters.push(createHoverableNeuronSeries(m, sd, sw))
+                    neuronScatters.push(createHoverableNeuronSeries(m))
                 }
             }
 
-            function createHoverableNeuronSeries(mean, standardDeviation, synapticWeight) {
-                const newSeries = dataChart.createSeries(
+            function createHoverableNeuronSeries(mean) {
+                const newSeries = createSeries(
                     ChartView.SeriesTypeScatter, 'center',
-                    dataChart.xAxis, dataChart.yAxis
+                    xAxis, yAxis
                 )
                 newSeries.color = 'black'
                 newSeries.hovered.connect((point, state) => {
@@ -305,11 +306,10 @@ Page {
             }
         }
     }
-    // TODO: update the dataChart when finished
-    // Connections {
-    //     target: perceptronBridge
-    //     // update the chart line series to the best synaptic weight at the end
-    //     // of the training.
-    //     onHas_finishedChanged: dataChart.updateLineSeries()
-    // }
+    Connections {
+        target: rbfnBridge
+        // update the chart scatter series to the best neurons at the end of the
+        // training.
+        onHas_finishedChanged: dataChart.updateNeurons()
+    }
 }

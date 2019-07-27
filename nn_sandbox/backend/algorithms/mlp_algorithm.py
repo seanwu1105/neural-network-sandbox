@@ -19,7 +19,7 @@ class MlpAlgorithm(PredictiveAlgorithm):
         self._momentum_weight = momentum_weight
 
         # the default network shape is (2 * 5)
-        self._initialize_neurons(network_shape if network_shape else (5, 5))
+        self.network_shape = network_shape if network_shape else (5, 5)
 
         # for momentum
         self._synaptic_weight_diff = collections.defaultdict(lambda: 0)
@@ -30,10 +30,10 @@ class MlpAlgorithm(PredictiveAlgorithm):
                                      result)
         self._adjust_synaptic_weights(deltas)
 
-    def _initialize_neurons(self, shape):
+    def _initialize_neurons(self):
         """ Build the neuron network with single neuron as output layer. """
         self._neurons = tuple((Perceptron(sigmoid),) * size
-                              for size in list(shape) + [1])
+                              for size in list(self.network_shape) + [1])
 
     def _feed_forward(self, data):
         results = [None]

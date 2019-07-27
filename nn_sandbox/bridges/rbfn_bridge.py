@@ -58,22 +58,25 @@ class RbfnBridge(Bridge):
 
 class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
     def __init__(self, observer, **kwargs):
+        self.has_initialized = False
         Observable.__init__(self, observer)
         RbfnAlgorithm.__init__(self, **kwargs)
+        self.has_initialized = True
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if name == 'current_iterations':
-            self.notify(name, value)
+        if name == 'current_iterations' and self.has_initialized:
+            if value % 50 == 0:
+                self.notify(name, value)
             self.notify('test_correct_rate', self.test())
             self.notify('current_neurons', [{
-                'mean': neuron.mean,
+                'mean': neuron.mean.tolist(),
                 'standard_deviation': float(neuron.standard_deviation),
                 'synaptic_weight': neuron.synaptic_weight
-            } for neuron in self._neurons])
-        elif name in ('best_correct_rate', 'current_correct_rate'):
+            } for neuron in self._neurons if not neuron.is_threshold])
+        if name in ('best_correct_rate', 'current_correct_rate'):
             self.notify(name, value)
-        elif name in ('training_dataset', 'testing_dataset') and value is not None:
+        if name in ('training_dataset', 'testing_dataset') and value is not None:
             self.notify(name, value.tolist())
 
     def run(self):
@@ -84,12 +87,12 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
             'mean': neuron.mean.tolist(),
             'standard_deviation': float(neuron.standard_deviation),
             'synaptic_weight': neuron.synaptic_weight
-        } for neuron in self._neurons])
+        } for neuron in self._neurons if not neuron.is_threshold])
         self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
 
-    @property
-    def current_learning_rate(self):
-        ret = super().current_learning_rate
-        self.notify('current_learning_rate', ret)
-        return ret
+    # @property
+    # def current_learning_rate(self):
+    #     ret = super().current_learning_rate
+    #     self.notify('current_learning_rate', ret)
+    #     return ret

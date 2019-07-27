@@ -1,12 +1,11 @@
 import numpy as np
 
-from . import AbstractNeuron
 
-
-class Perceptron(AbstractNeuron):
+class Perceptron:
     def __init__(self, activation_function):
-        super().__init__()
-        self._activation_function = activation_function
+        self._data = None
+        self.synaptic_weight = None
+        self.activation_function = activation_function
 
     @property
     def data(self):
@@ -24,4 +23,4 @@ class Perceptron(AbstractNeuron):
 
     @property
     def result(self):
-        return self._activation_function(np.dot(self.synaptic_weight, self.data))
+        return self.activation_function(np.dot(self.synaptic_weight, self.data))

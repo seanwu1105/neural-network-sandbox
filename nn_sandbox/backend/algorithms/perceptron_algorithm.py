@@ -11,8 +11,6 @@ class PerceptronAlgorithm(PredictiveAlgorithm):
                          initial_learning_rate, search_iteration_constant,
                          test_ratio)
 
-        self._initialize_neurons()
-
     def iterate(self):
         self._feed_forward(self.current_data[:-1])
         self._adjust_synaptic_weights()

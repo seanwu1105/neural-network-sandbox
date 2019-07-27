@@ -2,15 +2,18 @@ import abc
 import copy
 import functools
 import threading
+from typing import List
 
 import numpy as np
+
+from ..neurons import Perceptron
 
 
 class TraningAlgorithm(threading.Thread, abc.ABC):
     def __init__(self):
         super().__init__()
         self._dataset = None
-        self._neurons = []
+        self._neurons: List[Perceptron] = []
         self._should_stop = False
 
     def stop(self):
@@ -37,6 +40,7 @@ class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
         self._best_neurons = []
 
     def run(self):
+        self._initialize_neurons()
         for self.current_iterations in range(self._total_epoches * len(self.training_dataset)):
             if self._should_stop:
                 break
@@ -50,6 +54,10 @@ class PredictiveAlgorithm(TraningAlgorithm, abc.ABC):
 
     def test(self):
         return self._correct_rate(self.testing_dataset)
+
+    @abc.abstractmethod
+    def _initialize_neurons(self):
+        """ initialize neurons and save to self._neurons """
 
     @abc.abstractmethod
     def iterate(self):
