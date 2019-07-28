@@ -19,7 +19,7 @@ An assignment collection for course _CE5037 Neural Network_ in National Central 
 
 ![rbfn preview](https://i.imgur.com/PFyYhwb.gif)
 
-![som preview](https://i.imgur.com/7bMjisg.jpg)
+![som preview](https://i.imgur.com/IhDmror.gif)
 
 ## Installation
 
