@@ -1,3 +1,5 @@
+import time
+
 import PyQt5.QtCore
 
 from nn_sandbox.backend.algorithms import RbfnAlgorithm
@@ -66,14 +68,12 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if name == 'current_iterations' and self.has_initialized:
-            # XXX: to keep the GUI from blocking, uncomment the following line
-            if value % 50 == 0:
-                self.notify(name, value)
-                self.notify('current_neurons', [{
-                    'mean': neuron.mean.tolist(),
-                    'standard_deviation': float(neuron.standard_deviation),
-                    'synaptic_weight': float(neuron.synaptic_weight)
-                } for neuron in self._neurons if not neuron.is_threshold])
+            self.notify(name, value)
+            self.notify('current_neurons', [{
+                'mean': neuron.mean.tolist(),
+                'standard_deviation': float(neuron.standard_deviation),
+                'synaptic_weight': float(neuron.synaptic_weight)
+            } for neuron in self._neurons if not neuron.is_threshold])
             self.notify('test_correct_rate', self.test())
         if name in ('best_correct_rate', 'current_correct_rate'):
             self.notify(name, value)
@@ -92,10 +92,13 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
         self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
 
+    def _iterate(self):
+        super()._iterate()
+        # XXX: the following line keeps the GUI from blocking
+        # time.sleep(0.1)
+
     @property
     def current_learning_rate(self):
         ret = super().current_learning_rate
-        # XXX: to keep the GUI from blocking, uncomment the following line
-        if self.current_iterations % 10 == 0:
-            self.notify('current_learning_rate', ret)
+        self.notify('current_learning_rate', ret)
         return ret

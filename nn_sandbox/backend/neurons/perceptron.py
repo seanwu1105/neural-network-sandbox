@@ -3,8 +3,8 @@ import numpy as np
 
 class Perceptron:
     def __init__(self, activation_function):
-        self._data = None
-        self.synaptic_weight = None
+        self._data: np.ndarray = None
+        self.synaptic_weight: np.ndarray = None
         self.activation_function = activation_function
 
     @property

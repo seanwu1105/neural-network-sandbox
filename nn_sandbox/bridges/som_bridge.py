@@ -1,3 +1,5 @@
+import time
+
 import PyQt5.QtCore
 
 from nn_sandbox.backend.algorithms import SomAlgorithm
@@ -53,8 +55,19 @@ class ObservableSomAlgorithm(Observable, SomAlgorithm):
         super().run()
         self.notify('has_finished', True)
 
+    def _iterate(self):
+        super()._iterate()
+        # XXX: the following line keeps the GUI from blocking
+        time.sleep(0.1)
+
     @property
     def current_learning_rate(self):
         ret = super().current_learning_rate
         self.notify('current_learning_rate', ret)
+        return ret
+
+    @property
+    def current_standard_deviation(self):
+        ret = super().current_standard_deviation
+        self.notify('current_standard_deviation', ret)
         return ret

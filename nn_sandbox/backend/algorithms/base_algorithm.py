@@ -2,11 +2,8 @@ import abc
 import copy
 import functools
 import threading
-from typing import List
 
 import numpy as np
-
-from ..neurons import Perceptron
 
 
 class TraningAlgorithm(threading.Thread, abc.ABC):
@@ -14,7 +11,7 @@ class TraningAlgorithm(threading.Thread, abc.ABC):
         super().__init__()
         self._dataset = np.array(dataset)
         self._total_epoches = total_epoches
-        self._neurons: List[Perceptron] = []
+        self._neurons = []
         self._should_stop = False
 
     def stop(self):

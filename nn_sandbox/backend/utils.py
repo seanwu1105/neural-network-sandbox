@@ -22,6 +22,14 @@ def dist(p1, p2):
     return sum((x1 - x2)**2 for x1, x2 in zip(p1, p2))**0.5
 
 
+def flatten(list_or_tuple):
+    for element in list_or_tuple:
+        if isinstance(element, (list, tuple)):
+            yield from flatten(element)
+        else:
+            yield element
+
+
 def read_data(folder='nn_sandbox/assets/data'):
     data = {}
     for filepath in pathlib.Path(folder).glob('**/*.txt'):
