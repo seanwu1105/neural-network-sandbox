@@ -8,7 +8,7 @@ import 'components/dashboards'
 ApplicationWindow {
     id: window
     visible: true
-    // minimumWidth: body.implicitWidth
+    title: 'Neuron Network Sandbox'
     // XXX: using body.implicitWidth will cause BadValue and BadWindow error in
     // Linux (Kubuntu). Need further research. Currently, I use
     // Component.onCompleted instead as a workaround.
