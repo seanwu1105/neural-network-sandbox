@@ -114,6 +114,20 @@ Page {
                     Component.onCompleted: mlpBridge.test_ratio = value / 100
                     Layout.fillWidth: true
                 }
+                Label {
+                    text: 'UI Refresh Interval'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                DoubleSpinBox {
+                    enabled: mlpBridge.has_finished
+                    editable: true
+                    value: 0 * 100
+                    from: 0 * 100
+                    to: 5 * 100
+                    onValueChanged: mlpBridge.ui_refresh_interval = value / 100
+                    Component.onCompleted: mlpBridge.ui_refresh_interval = value / 100
+                    Layout.fillWidth: true
+                }
             }
         }
         GroupBox {

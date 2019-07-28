@@ -8,6 +8,7 @@ from .observer import Observable
 
 
 class RbfnBridge(Bridge):
+    ui_refresh_interval = BridgeProperty(0.0)
     dataset_dict = BridgeProperty({})
     training_dataset = BridgeProperty([])
     testing_dataset = BridgeProperty([])
@@ -36,6 +37,7 @@ class RbfnBridge(Bridge):
     def start_rbfn_algorithm(self):
         self.rbfn_algorithm = ObservableRbfnAlgorithm(
             self,
+            self.ui_refresh_interval,
             dataset=self.dataset_dict[self.current_dataset_name],
             total_epoches=self.total_epoches,
             most_correct_rate=self._most_correct_rate,
@@ -59,11 +61,12 @@ class RbfnBridge(Bridge):
 
 
 class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
-    def __init__(self, observer, **kwargs):
+    def __init__(self, observer, ui_refresh_interval, **kwargs):
         self.has_initialized = False
         Observable.__init__(self, observer)
         RbfnAlgorithm.__init__(self, **kwargs)
         self.has_initialized = True
+        self.ui_refresh_interval = ui_refresh_interval
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
@@ -94,8 +97,8 @@ class ObservableRbfnAlgorithm(Observable, RbfnAlgorithm):
 
     def _iterate(self):
         super()._iterate()
-        # XXX: the following line keeps the GUI from blocking
-        # time.sleep(0.1)
+        # the following line keeps the GUI from blocking
+        time.sleep(self.ui_refresh_interval)
 
     @property
     def current_learning_rate(self):

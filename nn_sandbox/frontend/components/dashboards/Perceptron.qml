@@ -103,6 +103,20 @@ Page {
                     Component.onCompleted: perceptronBridge.test_ratio = value / 100
                     Layout.fillWidth: true
                 }
+                Label {
+                    text: 'UI Refresh Interval'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                DoubleSpinBox {
+                    enabled: perceptronBridge.has_finished
+                    editable: true
+                    value: 0 * 100
+                    from: 0 * 100
+                    to: 5 * 100
+                    onValueChanged: perceptronBridge.ui_refresh_interval = value / 100
+                    Component.onCompleted: perceptronBridge.ui_refresh_interval = value / 100
+                    Layout.fillWidth: true
+                }
             }
         }
         GroupBox {

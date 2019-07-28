@@ -131,6 +131,20 @@ Page {
                     Component.onCompleted: rbfnBridge.test_ratio = value / 100
                     Layout.fillWidth: true
                 }
+                Label {
+                    text: 'UI Refresh Interval'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                DoubleSpinBox {
+                    enabled: rbfnBridge.has_finished
+                    editable: true
+                    value: 0.1 * 100
+                    from: 0 * 100
+                    to: 5 * 100
+                    onValueChanged: rbfnBridge.ui_refresh_interval = value / 100
+                    Component.onCompleted: rbfnBridge.ui_refresh_interval = value / 100
+                    Layout.fillWidth: true
+                }
             }
         }
         GroupBox {
@@ -267,7 +281,7 @@ Page {
                     chartToolTip.text = `Mean: (${point.x}, ${point.y})`
                     chartToolTip.visible = state
                 })
-                newSeries.append(mean[0], mean[1])
+                newSeries.append(...mean)
                 newSeries.useOpenGL = true
                 return newSeries
             }

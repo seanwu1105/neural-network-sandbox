@@ -8,6 +8,7 @@ from .observer import Observable
 
 
 class SomBridge(Bridge):
+    ui_refresh_interval = BridgeProperty(0.0)
     dataset_dict = BridgeProperty({})
     current_dataset_name = BridgeProperty('')
     total_epoches = BridgeProperty(10)
@@ -18,6 +19,7 @@ class SomBridge(Bridge):
     current_learning_rate = BridgeProperty(0.0)
     current_standard_deviation = BridgeProperty(0.0)
     has_finished = BridgeProperty(True)
+    current_synaptic_weights = BridgeProperty([])
 
     def __init__(self):
         super().__init__()
@@ -27,6 +29,7 @@ class SomBridge(Bridge):
     def start_som_algorithm(self):
         self.som_algorithm = ObservableSomAlgorithm(
             self,
+            self.ui_refresh_interval,
             dataset=self.dataset_dict[self.current_dataset_name],
             total_epoches=self.total_epoches,
             initial_learning_rate=self.initial_learning_rate,
@@ -41,14 +44,18 @@ class SomBridge(Bridge):
 
 
 class ObservableSomAlgorithm(Observable, SomAlgorithm):
-    def __init__(self, observer, **kwargs):
+    def __init__(self, observer, ui_refresh_interval, **kwargs):
         Observable.__init__(self, observer)
         SomAlgorithm.__init__(self, **kwargs)
+        self.ui_refresh_interval = ui_refresh_interval
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if name == 'current_iterations':
             self.notify(name, value)
+            self.notify('current_synaptic_weights',
+                        [[neuron.synaptic_weight.tolist()
+                          for neuron in row] for row in self._neurons])
 
     def run(self):
         self.notify('has_finished', False)
@@ -57,8 +64,8 @@ class ObservableSomAlgorithm(Observable, SomAlgorithm):
 
     def _iterate(self):
         super()._iterate()
-        # XXX: the following line keeps the GUI from blocking
-        time.sleep(0.1)
+        # the following line keeps the GUI from blocking
+        time.sleep(self.ui_refresh_interval)
 
     @property
     def current_learning_rate(self):

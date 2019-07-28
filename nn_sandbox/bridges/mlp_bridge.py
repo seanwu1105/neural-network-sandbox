@@ -1,3 +1,5 @@
+import time
+
 import PyQt5.QtCore
 
 from nn_sandbox.backend.algorithms import MlpAlgorithm
@@ -6,6 +8,7 @@ from .observer import Observable
 
 
 class MlpBridge(Bridge):
+    ui_refresh_interval = BridgeProperty(0.0)
     dataset_dict = BridgeProperty({})
     training_dataset = BridgeProperty([])
     testing_dataset = BridgeProperty([])
@@ -33,6 +36,7 @@ class MlpBridge(Bridge):
     def start_mlp_algorithm(self):
         self.mlp_algorithm = ObservableMlpAlgorithm(
             self,
+            self.ui_refresh_interval,
             dataset=self.dataset_dict[self.current_dataset_name],
             total_epoches=self.total_epoches,
             most_correct_rate=self._most_correct_rate,
@@ -56,9 +60,10 @@ class MlpBridge(Bridge):
 
 
 class ObservableMlpAlgorithm(Observable, MlpAlgorithm):
-    def __init__(self, observer, **kwargs):
+    def __init__(self, observer, ui_refresh_interval, **kwargs):
         Observable.__init__(self, observer)
         MlpAlgorithm.__init__(self, **kwargs)
+        self.ui_refresh_interval = ui_refresh_interval
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
@@ -76,6 +81,11 @@ class ObservableMlpAlgorithm(Observable, MlpAlgorithm):
         super().run()
         self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
+
+    def _iterate(self):
+        super()._iterate()
+        # the following line keeps the GUI from blocking
+        time.sleep(self.ui_refresh_interval)
 
     @property
     def current_learning_rate(self):

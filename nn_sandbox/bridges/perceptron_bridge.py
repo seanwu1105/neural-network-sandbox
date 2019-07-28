@@ -1,3 +1,5 @@
+import time
+
 import PyQt5.QtCore
 
 from nn_sandbox.backend.algorithms import PerceptronAlgorithm
@@ -6,6 +8,7 @@ from .observer import Observable
 
 
 class PerceptronBridge(Bridge):
+    ui_refresh_interval = BridgeProperty(0.0)
     dataset_dict = BridgeProperty({})
     training_dataset = BridgeProperty([])
     testing_dataset = BridgeProperty([])
@@ -32,6 +35,7 @@ class PerceptronBridge(Bridge):
     def start_perceptron_algorithm(self):
         self.perceptron_algorithm = ObservablePerceptronAlgorithm(
             self,
+            self.ui_refresh_interval,
             dataset=self.dataset_dict[self.current_dataset_name],
             total_epoches=self.total_epoches,
             most_correct_rate=self._most_correct_rate,
@@ -53,9 +57,10 @@ class PerceptronBridge(Bridge):
 
 
 class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
-    def __init__(self, observer, **kwargs):
+    def __init__(self, observer, ui_refresh_interval, **kwargs):
         Observable.__init__(self, observer)
         PerceptronAlgorithm.__init__(self, **kwargs)
+        self.ui_refresh_interval = ui_refresh_interval
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
@@ -81,6 +86,11 @@ class ObservablePerceptronAlgorithm(Observable, PerceptronAlgorithm):
                      if neuron.synaptic_weight is not None])
         self.notify('test_correct_rate', self.test())
         self.notify('has_finished', True)
+
+    def _iterate(self):
+        super()._iterate()
+        # the following line keeps the GUI from blocking
+        time.sleep(self.ui_refresh_interval)
 
     @property
     def current_learning_rate(self):

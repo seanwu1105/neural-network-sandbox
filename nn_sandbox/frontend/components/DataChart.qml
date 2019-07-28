@@ -42,7 +42,7 @@ ChartView {
                 if (data[2] in scatterSeriesMap)
                     scatterSeriesMap[`${data[2]}test`].color = Qt.lighter(scatterSeriesMap[data[2]].color)
             }
-            scatterSeriesMap[`${data[2]}test`].append(data[0], data[1])
+            scatterSeriesMap[`${data[2]}test`].append(...data)
         }
     }
 
@@ -51,7 +51,7 @@ ChartView {
         for (let data of dataset) {
             if (!(data[2] in scatterSeriesMap))
                 scatterSeriesMap[data[2]] = createHoverableScatterSeries(data[2])
-            scatterSeriesMap[data[2]].append(data[0], data[1])
+            scatterSeriesMap[data[2]].append(...data)
         }
     }
 

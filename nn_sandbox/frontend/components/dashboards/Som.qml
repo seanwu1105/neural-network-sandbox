@@ -2,6 +2,7 @@ import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
+import QtCharts 2.3
 
 import '..'
 
@@ -102,6 +103,20 @@ Page {
                         Layout.fillWidth: true
                     }
                 }
+                Label {
+                    text: 'UI Refresh Interval'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                DoubleSpinBox {
+                    enabled: somBridge.has_finished
+                    editable: true
+                    value: 0.05 * 100
+                    from: 0 * 100
+                    to: 5 * 100
+                    onValueChanged: somBridge.ui_refresh_interval = value / 100
+                    Component.onCompleted: somBridge.ui_refresh_interval = value / 100
+                    Layout.fillWidth: true
+                }
             }
         }
         GroupBox {
@@ -144,6 +159,9 @@ Page {
                     text: somBridge.current_iterations + 1
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
+                    onTextChanged: () => {
+                        dataChart.updateNeuron()
+                    }
                 }
                 Label {
                     text: 'Current Learning Rate'
@@ -169,9 +187,64 @@ Page {
     ColumnLayout {
         DataChart {
             id: dataChart
+            property var neuronScatter
+            property var neuronTopology: []
+            
             width: 700
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            function updateNeuron() {
+                updateNeuronTopology()
+                updateNeuronScatter()
+            }
+
+            function updateNeuronScatter() {
+                if (neuronScatter) {
+                    removeSeries(neuronScatter)
+                }
+                neuronScatter = createHoverableScatterSeries('SOM')
+                neuronScatter.color = 'black'
+                for (let row of somBridge.current_synaptic_weights) {
+                    for (let synaptic_weight of row) {
+                        neuronScatter.append(...synaptic_weight)
+                    }
+                }
+            }
+
+            function updateNeuronTopology() {
+                neuronTopology.forEach(line => {removeSeries(line)})
+                neuronTopology = []
+                createMapLines(somBridge.current_synaptic_weights)
+                if (somBridge.current_synaptic_weights[0]) {
+                    const transposed = somBridge.current_synaptic_weights[0].map(
+                        (col, i) => somBridge.current_synaptic_weights.map(row => row[i])
+                    )
+                    createMapLines(transposed)
+                }
+            }
+
+            function createMapLines(synaptic_weights) {
+                for (let row of synaptic_weights) {
+                    const line = createSeries(
+                        ChartView.SeriesTypeLine, name, xAxis, yAxis
+                    )
+                    line.color = 'grey'
+                    neuronTopology.push(line)
+                    for (let synaptic_weight of row) {
+                        line.append(...synaptic_weight)
+                    }
+                }
+            }
+
+            // XXX: sadly, QML does not have `super` access to the base class. Thus,
+            // we cannot call super method in overridden methods.
+            // Further details: https://bugreports.qt.io/browse/QTBUG-25942
+            function clear() {
+                removeAllSeries()
+                scatterSeriesMap = {}
+                neuronTopology = []
+            }
         }
     }
 }
